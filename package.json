@@ -1,0 +1,29 @@
+{
+  "name": "project-template",
+  "version": "1.0.0",
+  "description": "Capstone Project Template ",
+  "repository": {
+    "type": "git",
+    "url": "https://autocode.git.epam.com/campus_javascript/capstone-project/project-template.git"
+  },
+  "license": "ISC",
+  "author": "Sofia Mashkovtseva",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "compile": "sass src/scss/main.scss dist/css/main.css",
+    "build": "sass src/scss/main.scss dist/css/main.css",
+    "dev": "npm run lint || true && npm run compile && concurrently \"sass --watch src/scss/main.scss:dist/css/main.css\" \"http-server . -p 5050 -o\"",
+    "start": "http-server . -p 5050 -o",
+    "lint": "eslint src/js/**/*.js && stylelint src/scss/**/*.scss",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "http-server": "^14.1.1",
+    "sass": "^1.69.0",
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard-scss": "^13.0.0"
+  }
+}

@@ -1,0 +1,337 @@
+.about-hero {
+  position: relative;
+  min-height: 554px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('../../src/assets/images/about/hero-banner.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+  }
+  
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.about-hero__content {
+  text-align: center;
+  color: white;
+}
+
+.about-hero__title {
+  font-weight: 700;
+  font-size: 50px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: white;
+  margin: 0 0 20px 0;
+}
+
+.about-hero__text {
+  width: 430px;
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #E9E9ED;
+  margin: 0;
+}
+
+.about-features {
+  padding-top: 130px;
+  padding-bottom: 50px;
+}
+
+.about-features__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 90px;
+}
+
+.about-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+}
+
+.about-feature__icon {
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #B92770;
+  
+  img {
+    height: 51px;
+    width: 49px;
+    object-fit: contain;
+  }
+}
+
+.about-feature__title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: $text-dark;
+  margin: 0;
+}
+
+.about-feature__text {
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 26px;
+  letter-spacing: 0%;
+  color: $text-dark;
+  margin: 0;
+}
+
+.about-arrivals {
+  padding: 80px 0;
+  background: $bg-white;
+}
+
+.about-arrivals__content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 43px;
+  align-items: center;
+}
+
+.about-arrivals__text {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.about-arrivals__title {
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: $text-dark;
+  margin: 0;
+}
+
+.about-arrivals__paragraph {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0%;
+  color: $text-dark;
+  margin: 0;
+}
+
+.about-arrivals__btn {
+  align-self: flex-start;
+  margin-top: 0;
+  padding: 20px 31px;
+}
+
+.about-arrivals__image {
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+}
+
+.about-team {
+  padding-top: 80px;
+  padding-bottom: 50px;
+  background: $bg-white;
+}
+
+.about-team__title {
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: $text-dark;
+  text-align: center;
+  margin: 0 0 60px 0;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 440px;
+    height: 2px;
+    background-color: $primary-color;
+  }
+}
+
+.about-team__grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 35px;
+}
+
+.about-team__member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 27px;
+}
+
+.about-team__photo {
+  width: 100%;
+  max-width: 410px;
+  height: auto;
+  
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 0;
+  }
+}
+
+.about-team__name {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: $text-dark;
+  margin: 0;
+}
+
+.about-team__role {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: $text-light;
+  margin: 0;
+}
+
+@media (max-width: 1440px) {
+  .about-features__grid {
+    gap: 60px;
+  }
+  
+  .about-arrivals__content {
+    gap: 30px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .about-hero {
+    min-height: 400px;
+  }
+  
+  .about-hero__title {
+    font-size: 40px;
+  }
+  
+  .about-hero__text {
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .about-features {
+    padding-top: 80px;
+    padding-bottom: 40px;
+  }
+  
+  .about-features__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+  }
+  
+  .about-arrivals {
+    padding: 50px 0;
+  }
+  
+  .about-arrivals__content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .about-arrivals__image {
+    text-align: center;
+    
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+  
+  .about-team {
+    padding-top: 50px;
+    padding-bottom: 40px;
+  }
+  
+  .about-team__grid {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-hero {
+    min-height: 300px;
+  }
+  
+  .about-hero__title {
+    font-size: 32px;
+  }
+  
+  .about-hero__text {
+    font-size: 15px;
+  }
+  
+  .about-features {
+    padding-top: 50px;
+    padding-bottom: 30px;
+  }
+  
+  .about-features__grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .about-arrivals {
+    padding: 40px 0;
+  }
+  
+  .about-arrivals__title {
+    font-size: 32px;
+  }
+  
+  .about-team {
+    padding-top: 40px;
+    padding-bottom: 30px;
+  }
+  
+  .about-team__grid {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .about-team__member {
+    max-width: 300px;
+  }
+}
+

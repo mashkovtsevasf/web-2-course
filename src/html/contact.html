@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Shop - Contact Us</title>
+  <link rel="stylesheet" href="/dist/css/main.css">
+</head>
+<body>
+  <div data-header></div>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="contact-hero">
+      <div class="container">
+        <div class="contact-hero__content">
+          <h1 class="contact-hero__title">Contact Us</h1>
+          <p class="contact-hero__text">Duis vestibulum elit vel neque pharetra vulputate. Duis rutrum non risus in imperdiet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Information Section -->
+    <section class="contact-info">
+      <div class="container">
+        <div class="contact-info__grid">
+          <div class="contact-info__item">
+            <div class="contact-info__icon">
+              <img src="/src/assets/images/icons/contact-location-icon.svg" alt="Location">
+            </div>
+            <h3 class="contact-info__title">Our Location</h3>
+            <p class="contact-info__text">1234 NW Bobcat Lane, St. Robert, MO 65584-5678</p>
+          </div>
+          <div class="contact-info__item">
+            <div class="contact-info__icon">
+              <img src="/src/assets/images/icons/contact-time-icon.svg" alt="Operating Time">
+            </div>
+            <h3 class="contact-info__title">Operating Time</h3>
+            <p class="contact-info__text">Monday - Friday: 9am - 6 pm<br>Weekends: 10:30 am - 6pm</p>
+          </div>
+          <div class="contact-info__item">
+            <div class="contact-info__icon">
+              <img src="/src/assets/images/icons/contact-email-icon.svg" alt="Email">
+            </div>
+            <h3 class="contact-info__title">Our Email</h3>
+            <p class="contact-info__text">best@shop.com<br>info@bestshop.com</p>
+          </div>
+          <div class="contact-info__item">
+            <div class="contact-info__icon">
+              <img src="/src/assets/images/icons/contact-phone-icon.svg" alt="Phone">
+            </div>
+            <h3 class="contact-info__title">Call Us</h3>
+            <p class="contact-info__text">(268)142-8413<br>(760)265-2917</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feedback Form Section -->
+    <section class="contact-feedback">
+      <div class="container">
+        <div class="contact-feedback__content">
+          <div class="contact-feedback__image">
+            <img src="/src/assets/images/contact/feedback-banner.png" alt="Feedback">
+          </div>
+          <div class="contact-feedback__form-wrapper">
+            <h2 class="contact-feedback__title">Your Feedback Is Much Appreciated!</h2>
+            <p class="contact-feedback__intro">We will contact you when you complete the following form!</p>
+            <form class="contact-feedback__form" id="feedback-form">
+              <div class="contact-feedback__field">
+                <label for="name" class="contact-feedback__label">Your Name</label>
+                <input type="text" id="name" name="name" class="contact-feedback__input" required>
+              </div>
+              <div class="contact-feedback__field">
+                <label for="email" class="contact-feedback__label">Your Email Address</label>
+                <input type="email" id="email" name="email" class="contact-feedback__input" required>
+              </div>
+              <div class="contact-feedback__field">
+                <label for="topic" class="contact-feedback__label">Topic</label>
+                <input type="text" id="topic" name="topic" class="contact-feedback__input" required>
+              </div>
+              <div class="contact-feedback__field">
+                <label for="message" class="contact-feedback__label">Your Message</label>
+                <textarea id="message" name="message" class="contact-feedback__textarea" rows="5" required></textarea>
+              </div>
+              <button type="submit" class="btn btn--primary contact-feedback__submit">SEND</button>
+              <div class="contact-feedback__message" id="feedback-message"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer></div>
+  <script src="../js/main.js"></script>
+  <script src="../js/contact.js"></script>
+</body>
+</html>
+

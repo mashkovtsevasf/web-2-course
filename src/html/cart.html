@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Shop - My Cart</title>
+  <link rel="stylesheet" href="/dist/css/main.css">
+</head>
+<body>
+  <div data-header></div>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="cart-hero">
+      <div class="container">
+        <div class="cart-hero__content">
+          <h1 class="cart-hero__title">My Cart</h1>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cart Content -->
+    <section class="cart">
+      <div class="container">
+        <div class="cart__header">
+          <div class="cart__header-cell cart__header-cell--image">IMAGE</div>
+          <div class="cart__header-cell cart__header-cell--name">PRODUCT NAME</div>
+          <div class="cart__header-cell cart__header-cell--price">PRICE</div>
+          <div class="cart__header-cell cart__header-cell--quantity">QUANTITY</div>
+          <div class="cart__header-cell cart__header-cell--total">TOTAL</div>
+          <div class="cart__header-cell cart__header-cell--delete">DELETE</div>
+        </div>
+        
+        <div class="cart__items" id="cart-items">
+          <!-- Cart items will be loaded here -->
+        </div>
+        
+        <div class="cart__bottom">
+          <div class="cart__actions">
+            <button class="btn btn--primary cart__continue-btn">CONTINUE SHOPPING</button>
+            <button class="btn btn--primary cart__clear-btn">CLEAR SHOPPING CART</button>
+          </div>
+          
+          <div class="cart__summary">
+            <div class="cart__summary-content">
+              <div class="cart__summary-row">
+                <span class="cart__summary-label">Sub Total</span>
+                <span class="cart__summary-value" id="cart-subtotal">$0</span>
+              </div>
+              <div class="cart__summary-row" id="cart-discount-row" style="display: none;">
+                <span class="cart__summary-label">Discount</span>
+                <span class="cart__summary-value" id="cart-discount">$0</span>
+              </div>
+              <div class="cart__summary-row">
+                <span class="cart__summary-label">Shipping</span>
+                <span class="cart__summary-value" id="cart-shipping">$30</span>
+              </div>
+              <div class="cart__summary-row cart__summary-row--total">
+                <span class="cart__summary-label">Total</span>
+                <span class="cart__summary-value" id="cart-total">$0</span>
+              </div>
+            </div>
+            <button class="btn btn--primary cart__checkout-btn">CHECKOUT</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer></div>
+  <script src="../js/main.js"></script>
+  <script src="../js/cart.js"></script>
+</body>
+</html>
+

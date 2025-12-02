@@ -1,0 +1,20 @@
+.btn {
+  display: inline-block;
+  width: fit-content;
+  padding: 20px 25px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: 0;
+  text-align: center;
+  cursor: pointer;
+  
+  &--primary {
+    background-color: $primary-color;
+    color: $text-white;
+    
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}

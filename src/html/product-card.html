@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Shop - Product Details</title>
+  <link rel="stylesheet" href="/dist/css/main.css">
+</head>
+<body>
+  <div data-header></div>
+
+  <main>
+    <section class="product-details">
+      <div class="container">
+        <div class="product-details__content">
+          <!-- Main Product Image -->
+          <div class="product-details__images">
+            <div class="product-details__main-image">
+              <img id="product-main-image" src="" alt="Product">
+            </div>
+            <div class="product-details__thumbnails" id="product-thumbnails">
+              <!-- Thumbnails will be loaded here -->
+            </div>
+          </div>
+
+          <!-- Product Information -->
+          <div class="product-details__info">
+            <h1 class="product-details__title" id="product-title">Product</h1>
+            <div class="product-details__price" id="product-price"></div>
+            <div class="product-details__rating-wrapper">
+              <div class="product-details__rating" id="product-rating">
+                <!-- Rating stars will be loaded here -->
+              </div>
+              <div class="product-details__reviews-count" id="product-reviews-count"></div>
+            </div>
+            
+            <div class="product-details__description" id="product-description">
+              <!-- Description will be loaded here -->
+            </div>
+
+            <!-- Product Options -->
+            <div class="product-details__options">
+              <div class="product-details__option-group">
+                <label class="product-details__option-label" for="product-size">Size</label>
+                <select class="product-details__option-select" id="product-size">
+                  <option value="">Choose option</option>
+                </select>
+              </div>
+              <div class="product-details__option-group">
+                <label class="product-details__option-label" for="product-color">Color</label>
+                <select class="product-details__option-select" id="product-color">
+                  <option value="">Choose option</option>
+                </select>
+              </div>
+              <div class="product-details__option-group">
+                <label class="product-details__option-label" for="product-category">Category</label>
+                <select class="product-details__option-select" id="product-category">
+                  <option value="">Choose option</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="product-details__actions">
+              <div class="product-details__quantity">
+                <button class="product-details__quantity-btn" id="quantity-decrease">-</button>
+                <input type="number" class="product-details__quantity-input" id="quantity-input" value="1" min="1">
+                <button class="product-details__quantity-btn" id="quantity-increase">+</button>
+              </div>
+              <button class="btn btn--primary product-details__add-to-cart" id="add-to-cart-btn">Add To Cart</button>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="product-details__payment">
+              <span class="product-details__payment-label">Payment:</span>
+              <div class="product-details__payment-methods">
+                <img src="../assets/images/icons/visa-pay-logo.png" alt="VISA">
+                <img src="../assets/images/icons/american-express-logo.png" alt="American Express">
+                <img src="../assets/images/icons/master-card-logo.png" alt="Mastercard">
+                <img src="../assets/images/icons/paypal-logo.png" alt="PayPal">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-details__tabs">
+          <div class="product-details__tab-headers">
+            <button class="product-details__tab-header product-details__tab-header--active" data-tab="details">DETAILS</button>
+            <button class="product-details__tab-header" data-tab="reviews">REVIEWS</button>
+            <button class="product-details__tab-header" data-tab="shipping">SHIPPING POLICY</button>
+          </div>
+          <div class="product-details__tab-content">
+            <div class="product-details__tab-panel product-details__tab-panel--active" id="tab-details">
+              <p>Vestibulum commodo sapien non elit porttitor, vitae volutpat nibh mollis. Nulla porta risus id neque tempor, in efficitur justo imperdiet. Etiam a ex at ante tincidunt imperdiet. Nunc congue ex vel nisl viverra, sit amet aliquet lectus ullamcorper. Praesent luctus lacus non lorem elementum, eu tristique sapien suscipit. Sed bibendum, ipsum nec viverra malesuada, erat nisi sodales purus, eget hendrerit dui ligula eu enim. Ut non est nisi. Pellentesque tristique pretium dolor eu commodo. Proin iaculis nibh vitae lectus mollis bibendum. Quisque varius eget urna sit amet luctus. Suspendisse potenti. Curabitur ac placerat est, sit amet sodales risus. Pellentesque viverra dui auctor, ullamcorper turpis pharetra, facilisis quam.</p>
+              <p>Proin iaculis nibh vitae lectus mollis bibendum. Quisque varius eget urna sit amet luctus. Suspendisse potenti. Curabitur ac placerat est, sit amet sodales risus. Pellentesque viverra dui auctor, ullamcorper turpis pharetra, facilisis quam. Proin iaculis nibh vitae lectus mollis bibendum.</p>
+              <p>Quisque varius eget urna sit amet luctus. Suspendisse potenti. Curabitur ac placerat est, sit amet sodales risus. Pellentesque viverra dui auctor, ullamcorper turpis pharetra, facilisis quam.</p>
+            </div>
+            <div class="product-details__tab-panel" id="tab-reviews">
+              <div class="product-details__reviews-container">
+                <div class="product-details__reviews-list">
+                  <h3 class="product-details__reviews-heading" id="reviews-heading">1 review for Global Explorer Max Comfort Suitcase Pro</h3>
+                  <div class="product-details__review-item" data-rating="4">
+                    <div class="product-details__review-header">
+                      <div class="product-details__review-author">
+                        <div class="product-details__review-avatar">
+                          <img src="../assets/images/icons/review-avatar.png" alt="Ella Harper">
+                        </div>
+                        <div class="product-details__review-author-info">
+                          <span class="product-details__review-name">Ella Harper</span>
+                          <span class="product-details__review-date">/ June 11, 2025</span>
+                        </div>
+                      </div>
+                      <div class="product-details__review-rating" id="review-rating-display">
+                        <!-- Rating stars will be loaded here -->
+                      </div>
+                    </div>
+                    <p class="product-details__review-text">Proin iaculis nibh vitae lectus mollis bibendum. Quisque varius eget urna sit amet luctus. Suspendisse potenti. Curabitur ac placerat est, sit amet sodales risus.</p>
+                  </div>
+                </div>
+                <div class="product-details__review-form-wrapper">
+                  <h3 class="product-details__review-form-title">Add Review</h3>
+                  <p class="product-details__review-form-note">Your email address won't be shared with anybody. Required fields have the symbol *</p>
+                  <form class="product-details__review-form" id="review-form">
+                    <div class="product-details__review-field product-details__review-field--rating">
+                      <span class="product-details__review-label">RATE PRODUCT</span>
+                      <div class="product-details__review-stars" id="review-stars-input">
+                        <!-- Star rating input will be here -->
+                      </div>
+                    </div>
+                    <div class="product-details__review-field">
+                      <textarea id="review-comment" name="comment" rows="5" placeholder="Your Review*" required></textarea>
+                    </div>
+                    <div class="product-details__review-field product-details__review-field--inline">
+                      <div class="product-details__review-field">
+                        <input type="text" id="review-name" name="name" placeholder="Your Name*" required>
+                      </div>
+                      <div class="product-details__review-field">
+                        <input type="email" id="review-email" name="email" placeholder="Your Email*" required>
+                      </div>
+                    </div>
+                    <div class="product-details__review-field">
+                      <label class="product-details__review-checkbox">
+                        <input type="checkbox" name="save-info">
+                        <span>Save my name, email, and website in this browser for when I leave another comment.</span>
+                      </label>
+                    </div>
+                    <button type="submit" class="product-details__review-submit">SUBMIT</button>
+                    <div class="product-details__review-message" id="review-message"></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="product-details__tab-panel" id="tab-shipping">
+              <p>Shipping policy information will be displayed here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- You May Also Like Section -->
+        <div class="product-details__related">
+          <h2 class="product-details__related-title">You May Also Like</h2>
+          <div class="product-details__related-grid" id="related-products-grid">
+            <!-- Related products will be loaded here -->
+          </div>
+          <div class="product-details__related-slider" id="related-products-slider" style="display: none;">
+            <!-- Slider will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer></div>
+  <script src="../js/main.js"></script>
+  <script src="../js/product.js"></script>
+</body>
+</html>
+

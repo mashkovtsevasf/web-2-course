@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Shop - Catalog</title>
+  <link rel="stylesheet" href="/dist/css/main.css">
+</head>
+<body>
+  <div data-header></div>
+
+  <main>
+    <section class="catalog">
+      <div class="container">
+        <div class="catalog__top">
+          <div class="catalog__results">
+            <span class="catalog__results-text">Showing <span id="results-start">1</span>-<span id="results-end">12</span> of <span id="results-total">0</span> Results</span>
+          </div>
+          <div class="catalog__controls">
+            <button id="filters-toggle" class="catalog__filters-btn">Filters</button>
+            <div class="catalog__sort-wrapper">
+              <select id="sort-select" class="catalog__sort">
+                <option value="default">Default Sorting</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="popularity">Popularity</option>
+                <option value="rating">Rating</option>
+              </select>
+              <svg class="catalog__sort-icon" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.75 0.75L4.75 4.75L0.75 0.75" stroke="#504E4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="catalog__search">
+              <input type="text" id="search-input" class="catalog__search-input" placeholder="Search Models">
+              <button type="button" class="catalog__search-icon" aria-label="Search">
+                <img src="/src/assets/images/icons/search-icon.svg" alt="Search">
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="catalog__filters-panel" id="filters-panel" style="display: none;">
+          <div class="catalog__filters-content">
+            <div class="catalog__filter-group">
+              <label class="catalog__filter-label" for="filter-size">Size</label>
+              <div class="catalog__filter-select-wrapper">
+                <select name="size" class="catalog__filter-select" id="filter-size">
+                  <option value="">Choose option</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="S-L">S-L</option>
+                  <option value="S, M, XL">S, M, XL</option>
+                </select>
+                <svg class="catalog__filter-select-icon" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.75 0.75L4.75 4.75L0.75 0.75" stroke="#504E4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="catalog__filter-group">
+              <label class="catalog__filter-label" for="filter-color">Color</label>
+              <div class="catalog__filter-select-wrapper">
+                <select name="color" class="catalog__filter-select" id="filter-color">
+                  <option value="">Choose option</option>
+                  <option value="red">Red</option>
+                  <option value="blue">Blue</option>
+                  <option value="green">Green</option>
+                  <option value="black">Black</option>
+                  <option value="grey">Grey</option>
+                  <option value="yellow">Yellow</option>
+                  <option value="pink">Pink</option>
+                </select>
+                <svg class="catalog__filter-select-icon" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.75 0.75L4.75 4.75L0.75 0.75" stroke="#504E4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="catalog__filter-group">
+              <label class="catalog__filter-label" for="filter-category">Category</label>
+              <div class="catalog__filter-select-wrapper">
+                <select name="category" class="catalog__filter-select" id="filter-category">
+                  <option value="">Choose option</option>
+                  <option value="suitcases">Suitcases</option>
+                  <option value="carry-ons">Carry-ons</option>
+                  <option value="luggage sets">Luggage Sets</option>
+                  <option value="kids' luggage">Kids' Luggage</option>
+                </select>
+                <svg class="catalog__filter-select-icon" width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.75 0.75L4.75 4.75L0.75 0.75" stroke="#504E4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="catalog__filter-group catalog__filter-group--sales">
+              <span class="catalog__filter-label">Sales</span>
+              <label class="catalog__filter-checkbox" for="filter-sales">
+                <input type="checkbox" name="salesStatus" id="filter-sales" value="true" class="filter-checkbox">
+                <span>On Sale</span>
+              </label>
+            </div>
+          </div>
+          <div class="catalog__filters-actions">
+            <button id="clear-filters" class="btn btn--primary">CLEAR FILTERS</button>
+            <button id="hide-filters" class="btn btn--primary">HIDE FILTERS</button>
+          </div>
+        </div>
+
+        <aside class="catalog__sidebar catalog__sidebar--top" aria-label="Top Best Sets">
+          <h3 class="catalog__sidebar-title">Top Best Sets</h3>
+          <div class="catalog__sets" id="top-sets-top">
+            <!-- Top sets will be loaded here -->
+          </div>
+        </aside>
+
+        <div class="catalog__content">
+          <div class="catalog__main">
+            <div class="catalog__grid" id="products-grid">
+              <!-- Products will be loaded here -->
+            </div>
+            <div class="catalog__pagination" id="pagination">
+              <!-- Pagination will be loaded here -->
+            </div>
+          </div>
+
+          <aside class="catalog__sidebar" aria-label="Top Best Sets">
+            <h3 class="catalog__sidebar-title">Top Best Sets</h3>
+            <div class="catalog__sets" id="top-sets">
+              <!-- Top sets will be loaded here -->
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer></div>
+  <script src="../js/main.js"></script>
+  <script src="../js/catalog.js"></script>
+</body>
+</html>
+
