@@ -12,15 +12,23 @@ async function loadProduct() {
       return null;
     }
 
-    const basePath = getBasePath();
-    const jsonPath = `${basePath}assets/data.json`;
-    const response = await fetch(jsonPath);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // First try to find in localStorage (admin products)
+    const adminProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+    let product = adminProducts.find(p => p.id === productId);
+    
+    // If not found, try to load from JSON
+    if (!product) {
+      const basePath = getBasePath();
+      const jsonPath = `${basePath}assets/data.json`;
+      const response = await fetch(jsonPath);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      product = data.data.find(item => item.id === productId);
     }
-    const data = await response.json();
-    const product = data.data.find(item => item.id === productId);
-    return product;
+    
+    return product || null;
   } catch (error) {
     return null;
   }
@@ -32,8 +40,16 @@ function getProductImageUrl(product) {
   
   const basePath = getBasePath();
   
+  // Check if imageUrl is a base64 string (from admin-uploaded images)
+  if (product.imageUrl && product.imageUrl.startsWith('data:image/')) {
+    return product.imageUrl;
+  }
+  
   if (product.imageUrl && !product.imageUrl.includes('placeholder')) {
-    return `${basePath}${product.imageUrl}`;
+    if (product.imageUrl.startsWith('assets/')) {
+      return `${basePath}${product.imageUrl}`;
+    }
+    return product.imageUrl;
   }
   
   const colorMap = {
@@ -671,7 +687,7 @@ async function addToCart(productId, quantity) {
   try {
     if (!productId) {
       alert('Error: Product ID is missing');
-      return;
+      return false;
     }
     
     const basePath = getBasePath();
@@ -686,7 +702,7 @@ async function addToCart(productId, quantity) {
     
     if (!product) {
       alert('Product not found');
-      return;
+      return false;
     }
     
     const imageUrl = getProductImageUrl(product);
@@ -696,7 +712,7 @@ async function addToCart(productId, quantity) {
     const selectedSize = sizeSelect ? sizeSelect.value : '';
     const selectedColor = colorSelect ? colorSelect.value : '';
     
-    addItemToCart(productId, quantity, {
+    const added = addItemToCart(productId, quantity, {
       name: product.name,
       price: product.price,
       image: imageUrl,
@@ -704,20 +720,25 @@ async function addToCart(productId, quantity) {
       color: selectedColor
     });
     
-    if (typeof updateCartCounter === 'function') {
-      updateCartCounter();
+    if (added) {
+      if (typeof updateCartCounter === 'function') {
+        updateCartCounter();
+      }
+      
+      const btn = document.getElementById('add-to-cart-btn');
+      if (btn) {
+        const originalText = btn.textContent;
+        btn.textContent = 'Added';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      }
+      return true;
     }
-    
-    const btn = document.getElementById('add-to-cart-btn');
-    if (btn) {
-      const originalText = btn.textContent;
-      btn.textContent = 'Added';
-      setTimeout(() => {
-        btn.textContent = originalText;
-      }, 2000);
-    }
+    return false;
   } catch (error) {
     alert('Error adding item to cart: ' + error.message);
+    return false;
   }
 }
 
@@ -770,11 +791,14 @@ function attachRelatedProductsAddToCartListeners(container) {
       const productId = btn.getAttribute('data-product-id');
       if (productId) {
         const originalText = btn.textContent;
-        await addToCart(productId, 1);
-        btn.textContent = 'Added';
-        setTimeout(() => {
-          btn.textContent = originalText;
-        }, 2000);
+        const result = await addToCart(productId, 1);
+        // Only show "Added" if item was successfully added
+        if (result !== false) {
+          btn.textContent = 'Added';
+          setTimeout(() => {
+            btn.textContent = originalText;
+          }, 2000);
+        }
       }
     });
   });

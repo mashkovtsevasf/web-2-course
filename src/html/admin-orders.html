@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Shop - Manage Orders</title>
+  <link rel="icon" type="image/png" href="/src/assets/images/homepage/logo.png">
+  <link rel="stylesheet" href="/dist/css/main.css">
+</head>
+<body>
+  <div data-header></div>
+
+  <main>
+    <!-- Admin Orders Hero -->
+    <section class="admin-products-hero">
+      <div class="container">
+        <div class="admin-products-hero__content">
+          <h1 class="admin-products-hero__title">Manage Orders</h1>
+          <p class="admin-products-hero__text">View and process customer orders</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin Orders Content -->
+    <section class="admin-products-content">
+      <div class="container">
+        <!-- Orders Table -->
+        <div class="admin-products-table">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body">
+              <!-- Orders will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer></div>
+  <script src="../js/api-client.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/admin-orders.js"></script>
+</body>
+</html>
+
+

@@ -1,8 +1,16 @@
 // Homepage functionality
 
+// Use global functions from main.js
+// getBasePath and getCurrentPage are defined in main.js and available globally
+
 async function loadProducts() {
   try {
-    const jsonPath = '/src/assets/data.json';
+    const basePath = window.getBasePath ? window.getBasePath() : (() => {
+      const path = window.location.pathname;
+      const isSubPage = path.includes('/html/');
+      return isSubPage ? '/src/' : '/src/';
+    })();
+    const jsonPath = `${basePath}assets/data.json`;
     const response = await fetch(jsonPath);
     
     if (!response.ok) {
@@ -10,9 +18,34 @@ async function loadProducts() {
     }
     
     const data = await response.json();
-    return data.data || [];
+    const jsonProducts = data.data || [];
+    
+    // Load admin-added products from localStorage
+    const adminProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+    
+    // Load deleted product IDs
+    const deletedProducts = JSON.parse(localStorage.getItem('deletedProducts') || '[]');
+    
+    // Merge: admin products override JSON products with same ID, new ones are added
+    const productsMap = new Map();
+    
+    // First, add all JSON products (except deleted ones)
+    jsonProducts.forEach(product => {
+      if (!deletedProducts.includes(product.id)) {
+        productsMap.set(product.id, product);
+      }
+    });
+    
+    // Then, add/override with admin products (admin products have priority)
+    adminProducts.forEach(product => {
+      productsMap.set(product.id, product);
+    });
+    
+    // Convert to array
+    return Array.from(productsMap.values());
   } catch (error) {
-    return [];
+    // Fallback to localStorage only
+    return JSON.parse(localStorage.getItem('adminProducts') || '[]');
   }
 }
 
@@ -22,7 +55,16 @@ function getProductsByBlock(products, blockName) {
 }
 
 function getProductImageUrl(product, basePathOverride = null) {
-  const basePath = basePathOverride || getBasePath();
+  const basePath = basePathOverride || (window.getBasePath ? window.getBasePath() : (() => {
+    const path = window.location.pathname;
+    const isSubPage = path.includes('/html/');
+    return isSubPage ? '/src/' : '/src/';
+  })());
+  
+  // Check if imageUrl is a base64 string (from admin-uploaded images)
+  if (product.imageUrl && product.imageUrl.startsWith('data:image/')) {
+    return product.imageUrl;
+  }
   
   if (product.category === 'luggage sets') {
     const setColorMap = {
@@ -59,7 +101,11 @@ function getProductImageUrl(product, basePathOverride = null) {
 }
 
 function renderProductCard(product) {
-  const basePath = getBasePath();
+  const basePath = window.getBasePath ? window.getBasePath() : (() => {
+    const path = window.location.pathname;
+    const isSubPage = path.includes('/html/');
+    return isSubPage ? '/src/' : '/src/';
+  })();
   const hasSale = product.salesStatus;
   const imageUrl = getProductImageUrl(product, basePath);
   
@@ -118,55 +164,81 @@ function prepareProductsToShow(filteredProducts, allProducts, isDesktop) {
 }
 
 async function loadSelectedProducts() {
+  console.log('loadSelectedProducts called');
   const grid = document.querySelector('.selected-products__grid');
   const slider = document.querySelector('.selected-products__slider');
   
+  if (!grid) {
+    console.error('Selected products grid not found');
+    return;
+  }
+  
   try {
     const products = await loadProducts();
+    console.log('Loaded products:', products.length);
     
     if (products.length === 0) {
+      console.log('No products found');
       showErrorOrEmpty(grid, slider, false);
       return;
     }
     
     const selectedProducts = getProductsByBlock(products, 'Selected Products');
+    console.log('Selected products found:', selectedProducts.length);
+    
     const isDesktop = window.innerWidth > 1440;
     const productsToShow = prepareProductsToShow(selectedProducts, products, isDesktop);
+    console.log('Products to show:', productsToShow.length);
     
     if (productsToShow.length === 0) {
+      console.log('No products to show after filtering');
       showErrorOrEmpty(grid, slider, true);
       return;
     }
     
     renderProductsToContainer(productsToShow, grid, slider, 'selected-products');
   } catch (error) {
+    console.error('Error loading selected products:', error);
     showErrorOrEmpty(grid, slider, false);
   }
 }
 
 async function loadNewProducts() {
+  console.log('loadNewProducts called');
   const grid = document.querySelector('.new-products__grid');
   const slider = document.querySelector('.new-products__slider');
   
+  if (!grid) {
+    console.error('New products grid not found');
+    return;
+  }
+  
   try {
     const products = await loadProducts();
+    console.log('Loaded products for new:', products.length);
     
     if (products.length === 0) {
+      console.log('No products found for new');
       showErrorOrEmpty(grid, slider, false);
       return;
     }
     
     const newProducts = getProductsByBlock(products, 'New Products Arrival');
+    console.log('New products found:', newProducts.length);
+    
     const isDesktop = window.innerWidth > 1440;
     const productsToShow = prepareProductsToShow(newProducts, products, isDesktop);
+    console.log('New products to show:', productsToShow.length);
     
     if (productsToShow.length === 0) {
+      console.log('No new products to show after filtering');
       showErrorOrEmpty(grid, slider, true);
       return;
     }
     
     renderProductsToContainer(productsToShow, grid, slider, 'new-products');
   } catch (error) {
+    console.error('Error loading new products:', error);
     showErrorOrEmpty(grid, slider, false);
   }
 }
@@ -438,28 +510,51 @@ async function addToCart(productId) {
     return;
   }
   
-  const basePath = getBasePath();
-  const jsonPath = `${basePath}assets/data.json`;
-  const response = await fetch(jsonPath);
-  if (!response.ok) {
-    return;
+  // Try to find in localStorage first (admin products)
+  const adminProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+  let product = adminProducts.find(p => p.id === productId);
+  
+  // If not found, try to load from JSON
+  if (!product) {
+    try {
+      const basePath = window.getBasePath ? window.getBasePath() : (() => {
+    const path = window.location.pathname;
+    const isSubPage = path.includes('/html/');
+    return isSubPage ? '/src/' : '/src/';
+  })();
+      const jsonPath = `${basePath}assets/data.json`;
+      const response = await fetch(jsonPath);
+      if (response.ok) {
+        const data = await response.json();
+        product = data.data.find(item => item.id === productId);
+      }
+    } catch (error) {
+      console.error('Error loading product:', error);
+    }
   }
-  const data = await response.json();
-  const product = data.data.find(item => item.id === productId);
   
   if (!product) {
     return;
   }
   
-  const imageUrl = getProductImageUrl(product);
+  const basePath = window.getBasePath ? window.getBasePath() : (() => {
+    const path = window.location.pathname;
+    const isSubPage = path.includes('/html/');
+    return isSubPage ? '/src/' : '/src/';
+  })();
+  const imageUrl = getProductImageUrl(product, basePath);
   
-  addItemToCart(productId, 1, {
+  const added = addItemToCart(productId, 1, {
     name: product.name,
     price: product.price,
     image: imageUrl,
     size: '',
     color: product.color || ''
   });
+  
+  if (added && typeof updateCartCounter === 'function') {
+    updateCartCounter();
+  }
 }
 
 function attachAddToCartListeners() {
@@ -491,7 +586,8 @@ let resizeTimeout;
 function handleResize() {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    if (getCurrentPage() === 'home') {
+    const currentPage = window.getCurrentPage ? window.getCurrentPage() : 'home';
+    if (currentPage === 'home') {
       loadSelectedProducts().then(() => {
         attachAddToCartListeners();
       });
@@ -503,17 +599,37 @@ function handleResize() {
 }
 
 function initHomePage() {
-  if (getCurrentPage() !== 'home') return;
+  const currentPage = window.getCurrentPage ? window.getCurrentPage() : (() => {
+    const path = window.location.pathname;
+    if (path.includes('catalog.html')) return 'catalog';
+    if (path.includes('about.html')) return 'about';
+    if (path.includes('contact.html')) return 'contact';
+    if (path.includes('cart.html')) return 'cart';
+    if (path.includes('product')) return 'product';
+    if (path.includes('profile.html')) return 'profile';
+    if (path.includes('admin.html') || path.includes('admin-products.html')) return 'admin';
+    return 'home';
+  })();
+  
+  console.log('initHomePage called, current page:', currentPage);
+  if (currentPage !== 'home') {
+    console.log('Not home page, skipping');
+    return;
+  }
   
   const checkAndLoad = () => {
     const selectedSection = document.querySelector('.selected-products');
     const newSection = document.querySelector('.new-products');
     
+    console.log('Checking sections:', { selectedSection, newSection });
+    
     if (!selectedSection || !newSection) {
+      console.log('Sections not found, retrying...');
       setTimeout(checkAndLoad, 100);
       return;
     }
     
+    console.log('Sections found, loading products...');
     loadSelectedProducts().then(() => {
       attachAddToCartListeners();
     });

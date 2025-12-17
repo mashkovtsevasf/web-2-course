@@ -2,6 +2,78 @@
 
 let cartItems = [];
 
+// Get base path function
+function getBasePath() {
+  const path = window.location.pathname;
+  const isSubPage = path.includes('/html/');
+  const srcPath = '/src';
+  const slash = '/';
+  
+  if (isSubPage) {
+    return `${srcPath}${slash}`;
+  }
+  return `${srcPath}${slash}`;
+}
+
+// Cart storage functions (from main.js)
+function getCartFromStorage() {
+  try {
+    const cart = localStorage.getItem('cart');
+    return cart ? JSON.parse(cart) : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveCartToStorage(cart) {
+  try {
+    localStorage.setItem('cart', JSON.stringify(cart));
+    if (typeof updateCartCounter === 'function') {
+      updateCartCounter();
+    }
+  } catch (error) {
+    console.error('Error saving cart:', error);
+  }
+}
+
+function updateCartCounter() {
+  const cart = getCartFromStorage();
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCountEl = document.getElementById('cart-count');
+  
+  if (cartCountEl) {
+    if (totalItems > 0) {
+      cartCountEl.textContent = totalItems;
+      cartCountEl.style.display = 'flex';
+    } else {
+      cartCountEl.style.display = 'none';
+    }
+  }
+}
+
+// Order history functions
+function getOrderHistory() {
+  try {
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) return [];
+    const orders = localStorage.getItem(`orders_${userEmail}`);
+    return orders ? JSON.parse(orders) : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveOrderHistory(orders) {
+  try {
+    const userEmail = localStorage.getItem('userEmail');
+    if (userEmail) {
+      localStorage.setItem(`orders_${userEmail}`, JSON.stringify(orders));
+    }
+  } catch (error) {
+    console.error('Error saving order history:', error);
+  }
+}
+
 // Rendering
 function renderCartItems() {
   const cartItemsContainer = document.getElementById('cart-items');
@@ -174,17 +246,128 @@ function setupEventListeners() {
   const checkoutBtn = document.querySelector('.cart__checkout-btn');
   if (checkoutBtn && !checkoutBtn.dataset.listenerAdded) {
     checkoutBtn.dataset.listenerAdded = 'true';
-    checkoutBtn.addEventListener('click', () => {
+    checkoutBtn.addEventListener('click', async () => {
       if (cartItems.length === 0) {
         alert('Your cart is empty');
         return;
       }
       
-      cartItems.length = 0;
-      saveCartToStorage(cartItems);
-      updateCartCounter();
-      alert('Thank you for your purchase.');
-      renderCartItems();
+      // Check if user is authenticated
+      const isAuth = typeof window !== 'undefined' && window.apiClient && window.apiClient.isAuthenticated();
+      const isLoggedInOld = localStorage.getItem('isLoggedIn') === 'true';
+      
+      if (!isAuth && !isLoggedInOld) {
+        alert('Please log in to place an order');
+        // Open login modal if available
+        const loginModal = document.getElementById('login-modal');
+        if (loginModal) {
+          loginModal.style.display = 'flex';
+        } else {
+          // Redirect to home page where login modal should be available
+          window.location.href = `${getBasePath()}index.html`;
+        }
+        return;
+      }
+      
+      // Calculate order total
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const shipping = 30;
+      const discountThreshold = 3000;
+      const discount = subtotal > discountThreshold ? subtotal * 0.1 : 0;
+      const total = subtotal - discount + shipping;
+      
+      try {
+        // Try to create order via API if authenticated
+        if (isAuth && typeof window !== 'undefined' && window.apiClient) {
+          const orderData = {
+            items: cartItems.map(item => ({
+              product_id: item.id || null,
+              product_name: item.name,
+              product_price: item.price,
+              quantity: item.quantity,
+              size: item.size || null,
+              color: item.color || null,
+              subtotal: item.price * item.quantity
+            })),
+            subtotal: subtotal,
+            shipping: shipping,
+            discount: discount,
+            total: total,
+            shipping_address: null
+          };
+          
+          const order = await window.apiClient.createOrder(orderData);
+          
+          // Save order to user's order history (localStorage backup)
+          const userEmail = localStorage.getItem('userEmail');
+          if (userEmail) {
+            const orders = getOrderHistory();
+            const localOrder = {
+              id: order.order_number || `ORD-${Date.now()}`,
+              date: Date.now(),
+              items: cartItems.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                image: item.image,
+                size: item.size,
+                color: item.color
+              })),
+              subtotal: subtotal,
+              shipping: shipping,
+              discount: discount,
+              total: total,
+              status: 'pending'
+            };
+            orders.unshift(localOrder);
+            saveOrderHistory(orders);
+          }
+          
+          // Clear cart
+          cartItems.length = 0;
+          saveCartToStorage(cartItems);
+          updateCartCounter();
+          alert('Thank you for your purchase. Your order has been placed!');
+          renderCartItems();
+        } else {
+          // Fallback to localStorage if API is not available
+          const order = {
+            id: `ORD-${Date.now()}`,
+            date: Date.now(),
+            items: cartItems.map(item => ({
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              image: item.image,
+              size: item.size,
+              color: item.color
+            })),
+            subtotal: subtotal,
+            shipping: shipping,
+            discount: discount,
+            total: total,
+            status: 'pending'
+          };
+          
+          // Save order to user's order history
+          const userEmail = localStorage.getItem('userEmail');
+          if (userEmail) {
+            const orders = getOrderHistory();
+            orders.unshift(order);
+            saveOrderHistory(orders);
+          }
+          
+          // Clear cart
+          cartItems.length = 0;
+          saveCartToStorage(cartItems);
+          updateCartCounter();
+          alert('Thank you for your purchase. Your order has been placed!');
+          renderCartItems();
+        }
+      } catch (error) {
+        console.error('Error creating order:', error);
+        alert('Error placing order. Please try again or log in.');
+      }
     });
   }
 }

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Shop - Manage Products</title>
+  <link rel="icon" type="image/png" href="/src/assets/images/homepage/logo.png">
+  <link rel="stylesheet" href="/dist/css/main.css">
+</head>
+<body>
+  <div data-header></div>
+
+  <main>
+    <!-- Admin Products Hero -->
+    <section class="admin-products-hero">
+      <div class="container">
+        <div class="admin-products-hero__content">
+          <h1 class="admin-products-hero__title">Manage Products</h1>
+          <p class="admin-products-hero__text">Create, update, and delete products</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin Products Content -->
+    <section class="admin-products-content">
+      <div class="container">
+        <!-- Add Product Button -->
+        <div class="admin-products__actions">
+          <button class="btn btn--primary" id="add-product-btn">Add New Product</button>
+        </div>
+
+        <!-- Products Table -->
+        <div class="admin-products-table">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body">
+              <!-- Products will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Add/Edit Product Modal -->
+        <div class="admin-modal" id="product-modal" style="display: none;">
+          <div class="admin-modal__overlay"></div>
+          <div class="admin-modal__content">
+            <div class="admin-modal__header">
+              <h2 class="admin-modal__title" id="modal-title">Add New Product</h2>
+              <button class="admin-modal__close" id="close-modal">&times;</button>
+            </div>
+            <form class="admin-modal__form" id="product-form">
+              <div class="admin-modal__field">
+                <label class="admin-modal__label">Product Name *</label>
+                <input type="text" class="admin-modal__input" id="product-name" required>
+              </div>
+              <div class="admin-modal__field">
+                <label class="admin-modal__label">Category *</label>
+                <select class="admin-modal__input" id="product-category" required>
+                  <option value="">Select category</option>
+                  <option value="suitcases">Suitcases</option>
+                  <option value="carry-ons">Carry-ons</option>
+                  <option value="luggage sets">Luggage Sets</option>
+                  <option value="kids' luggage">Kids' Luggage</option>
+                </select>
+              </div>
+              <div class="admin-modal__field">
+                <label class="admin-modal__label">Price *</label>
+                <input type="number" step="0.01" class="admin-modal__input" id="product-price" required>
+              </div>
+              <div class="admin-modal__field">
+                <label class="admin-modal__label">Stock *</label>
+                <input type="number" class="admin-modal__input" id="product-stock" required>
+              </div>
+              <div class="admin-modal__field">
+                <label class="admin-modal__label">Description</label>
+                <textarea class="admin-modal__textarea" id="product-description" rows="4"></textarea>
+              </div>
+              <div class="admin-modal__field">
+                <label class="admin-modal__label">Product Image</label>
+                <div class="admin-image-upload">
+                  <input type="file" class="admin-modal__input admin-modal__input--file" id="product-image-file" accept="image/*">
+                  <div class="admin-image-preview" id="image-preview" style="display: none;">
+                    <img id="preview-img" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 4px; margin-top: 10px;">
+                    <button type="button" class="admin-remove-image" id="remove-image-btn" style="margin-top: 5px; padding: 4px 8px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Remove Image</button>
+                  </div>
+                </div>
+              </div>
+              <div class="admin-modal__actions">
+                <button type="button" class="btn btn--secondary" id="cancel-form">Cancel</button>
+                <button type="submit" class="btn btn--primary">Save Product</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer></div>
+  <script src="../js/api-client.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/admin-products.js"></script>
+</body>
+</html>
+

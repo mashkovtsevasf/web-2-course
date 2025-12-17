@@ -1,0 +1,158 @@
+### Health Check
+GET http://localhost:3000/api/health
+
+### Get All Products (public)
+GET http://localhost:3000/api/products
+
+### Get All Products (with token)
+GET http://localhost:3000/api/products
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get Product by ID
+GET http://localhost:3000/api/products/1
+
+### Get Products by Category
+GET http://localhost:3000/api/products?category=suitcases
+
+### Search Products
+GET http://localhost:3000/api/products?search=travel
+
+### Create Product (admin only - requires token)
+POST http://localhost:3000/api/products
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "product_code": "TEST001",
+  "name": "Test Product",
+  "description": "Test description",
+  "price": 99.99,
+  "stock": 10,
+  "category_id": 1,
+  "sales_status": true
+}
+
+### Update Product (admin only - requires token)
+PUT http://localhost:3000/api/products/1
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "name": "Updated Product Name",
+  "price": 149.99,
+  "stock": 15
+}
+
+### Delete Product (admin only - requires token)
+DELETE http://localhost:3000/api/products/1
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get All Users (admin only - requires token)
+GET http://localhost:3000/api/users
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get User by ID (requires token - own profile or admin)
+GET http://localhost:3000/api/users/1
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Update User (requires token - own profile or admin)
+PUT http://localhost:3000/api/users/1
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "name": "Updated Name",
+  "phone": "+380501111111",
+  "address": "Updated Address"
+}
+
+### Register User
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "password123",
+  "name": "New User",
+  "phone": "+380501111111",
+  "address": "Some Address"
+}
+
+### Register
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "password123",
+  "name": "New User"
+}
+
+### Login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "user123"
+}
+
+### Get Current User (requires token)
+GET http://localhost:3000/api/auth/me
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Logout (requires token)
+POST http://localhost:3000/api/auth/logout
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get All Orders (requires token - own orders or admin)
+GET http://localhost:3000/api/orders
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get Orders by User (admin only - requires token)
+GET http://localhost:3000/api/orders?user_id=2
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Get Orders by Status
+GET http://localhost:3000/api/orders?status=pending
+
+### Get Order by ID
+GET http://localhost:3000/api/orders/1
+
+### Create Order (requires token)
+POST http://localhost:3000/api/orders
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "items": [
+    {
+      "product_id": 1,
+      "product_name": "Global Explorer Max Comfort Suitcase Pro",
+      "product_price": 250.00,
+      "quantity": 1,
+      "subtotal": 250.00
+    }
+  ],
+  "subtotal": 250.00,
+  "shipping": 30.00,
+  "discount": 0.00,
+  "total": 280.00,
+  "shipping_address": "Test Address"
+}
+
+### Update Order Status (admin only - requires token)
+PUT http://localhost:3000/api/orders/1/status
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "status": "completed"
+}
+
+### Get All Categories
+GET http://localhost:3000/api/categories
+
+### Get Category by ID
+GET http://localhost:3000/api/categories/1
+

@@ -12,15 +12,29 @@ Setup and Run
 1. Install dependencies:
    npm install
 
-2. Compile SCSS and start development server:
+2. Запуск повного сервера (бекенд + фронтенд):
+
+   Для production:
+   npm run start:all
+
+   Для development (з автоперезавантаженням):
+   npm run dev:all
+
+   Ці команди запускають:
+   - Backend API сервер на http://localhost:3000
+   - Frontend сервер на http://localhost:5050
+   - Автоматичну компіляцію SCSS (тільки для dev:all)
+
+3. Альтернативно - запуск окремо:
+
+   Термінал 1 (бекенд):
+   npm run server
+
+   Термінал 2 (фронтенд):
    npm run dev
 
-   This command will:
-   - Run linting checks (ESLint for JavaScript, Stylelint for SCSS)
-   - Compile SCSS to CSS (compiled CSS files are placed in dist/css folder)
-   - Watch for SCSS file changes and automatically recompile
-   - Start a local HTTP server on port 5050
-   - Open the website in your default browser
+   Або просто фронтенд без бекенду:
+   npm run start
 
 Features
 
@@ -34,19 +48,24 @@ Features
 
 Development
 
-- The development server runs on http://localhost:5050
+- Frontend server: http://localhost:5050
+- Backend API server: http://localhost:3000
+- API endpoints: http://localhost:3000/api
 - Main entry point: src/index.html
 
-Build
+Backend API Endpoints
 
-To compile SCSS without watching:
-npm run compile
+- GET /api/products - Отримати всі продукти
+- GET /api/products/:id - Отримати продукт за ID
+- POST /api/products - Створити продукт
+- PUT /api/products/:id - Оновити продукт
+- DELETE /api/products/:id - Видалити продукт
+- GET /api/categories - Отримати категорії
+- GET /api/orders - Отримати замовлення
+- POST /api/orders - Створити замовлення
+- POST /api/auth/login - Вхід
+- POST /api/auth/register - Реєстрація
+- GET /api/health - Перевірка статусу сервера
 
-Linting
 
-Linting runs automatically when you start the development server with npm run dev. The linting process checks JavaScript and SCSS files before compiling and starting the server.
-
-Checklist
-
-64 out of 64 points achieved.
 

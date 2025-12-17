@@ -8,6 +8,77 @@ let currentPage = 1;
 // Data loading
 async function loadProducts() {
   try {
+    // Try to load from API first
+    if (typeof window !== 'undefined' && window.apiClient) {
+      try {
+        const apiProducts = await window.apiClient.getProducts();
+        
+        // Transform API products to match frontend format
+        const transformedProducts = apiProducts.map(product => ({
+          id: product.product_code || product.product_id,
+          product_id: product.product_id,
+          name: product.name,
+          category: product.category_slug || product.category_name,
+          category_name: product.category_name,
+          price: parseFloat(product.price),
+          stock: product.stock || 0,
+          description: product.description,
+          imageUrl: product.image_url || null,
+          image_url: product.image_url || null,
+          color: product.color,
+          size: product.size,
+          salesStatus: product.sales_status === 1 || product.sales_status === true,
+          rating: product.rating || 0,
+          popularity: product.popularity || 0
+        }));
+        
+        // Also load from JSON and localStorage for backward compatibility
+        const basePath = getBasePath();
+        const jsonPath = `${basePath}assets/data.json`;
+        let jsonProducts = [];
+        try {
+          const response = await fetch(jsonPath);
+          if (response.ok) {
+            const data = await response.json();
+            jsonProducts = data.data || [];
+          }
+        } catch (e) {
+          console.log('Could not load JSON products:', e);
+        }
+        
+        const adminProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+        const deletedProducts = JSON.parse(localStorage.getItem('deletedProducts') || '[]');
+        
+        // Merge: API products first, then JSON, then localStorage
+        const productsMap = new Map();
+        
+        // Add API products (highest priority)
+        transformedProducts.forEach(product => {
+          productsMap.set(product.id, product);
+        });
+        
+        // Add JSON products (except deleted ones and those already in API)
+        jsonProducts.forEach(product => {
+          if (!deletedProducts.includes(product.id) && !productsMap.has(product.id)) {
+            productsMap.set(product.id, product);
+          }
+        });
+        
+        // Add localStorage products (except those already in API)
+        adminProducts.forEach(product => {
+          if (!productsMap.has(product.id)) {
+            productsMap.set(product.id, product);
+          }
+        });
+        
+        return Array.from(productsMap.values());
+      } catch (apiError) {
+        console.log('Could not load products from API, falling back to JSON/localStorage:', apiError);
+        // Fall through to JSON/localStorage
+      }
+    }
+    
+    // Fallback to JSON and localStorage
     const basePath = getBasePath();
     const jsonPath = `${basePath}assets/data.json`;
     const response = await fetch(jsonPath);
@@ -15,16 +86,56 @@ async function loadProducts() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data.data || [];
+    const jsonProducts = data.data || [];
+    
+    // Load admin-added products from localStorage
+    const adminProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+    
+    // Load deleted product IDs
+    const deletedProducts = JSON.parse(localStorage.getItem('deletedProducts') || '[]');
+    
+    // Merge: admin products override JSON products with same ID, new ones are added
+    const productsMap = new Map();
+    
+    // First, add all JSON products (except deleted ones)
+    jsonProducts.forEach(product => {
+      if (!deletedProducts.includes(product.id)) {
+        productsMap.set(product.id, product);
+      }
+    });
+    
+    // Then, add/override with admin products (admin products have priority)
+    adminProducts.forEach(product => {
+      productsMap.set(product.id, product);
+    });
+    
+    // Convert to array
+    return Array.from(productsMap.values());
   } catch (error) {
-    return [];
+    console.error('Error loading products:', error);
+    // Fallback to localStorage only
+    return JSON.parse(localStorage.getItem('adminProducts') || '[]');
   }
 }
 
 function getProductImageUrl(product, basePathOverride = null) {
   const basePath = basePathOverride || getBasePath();
   
-  if (product.category === 'luggage sets') {
+  // Check both imageUrl and image_url (from API)
+  let imageUrl = product.imageUrl || product.image_url || '';
+  
+  // If it's a base64 string (from admin-uploaded images)
+  if (imageUrl && imageUrl.startsWith('data:image/')) {
+    return imageUrl;
+  }
+  
+  // If no image, return null (will show gray background)
+  if (!imageUrl || imageUrl.trim() === '' || imageUrl === 'null') {
+    return null;
+  }
+  
+  // Handle luggage sets
+  if (product.category === 'luggage sets' || product.category_slug === 'luggage-sets') {
     const setColorMap = {
       'red': `${basePath}assets/images/suitcases/set-of-suitcase-red-small.png`,
       'blue': `${basePath}assets/images/suitcases/set-of-suitcase-blue-small.png`,
@@ -33,29 +144,41 @@ function getProductImageUrl(product, basePathOverride = null) {
       'yellow': `${basePath}assets/images/suitcases/set-of-suitcase-yellow-small.png`
     };
     
-    if (setColorMap[product.color]) {
+    if (product.color && setColorMap[product.color]) {
       return setColorMap[product.color];
     }
   }
   
-  if (product.imageUrl && !product.imageUrl.includes('path/to/')) {
-    if (product.imageUrl.startsWith('assets/')) {
-      return `${basePath}${product.imageUrl}`;
+  // Handle valid image URLs
+  if (imageUrl && !imageUrl.includes('path/to/')) {
+    if (imageUrl.startsWith('assets/')) {
+      return `${basePath}${imageUrl}`;
     }
-    return product.imageUrl;
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('/') || imageUrl.startsWith('data:')) {
+      return imageUrl;
+    }
+    return `${basePath}${imageUrl}`;
   }
   
-  const colorMap = {
-    'red': `${basePath}assets/images/suitcases/selected-suitcase-red-card.png`,
-    'blue': `${basePath}assets/images/suitcases/selected-suitcase-blue-card.png`,
-    'pink': `${basePath}assets/images/suitcases/selected-suitcase-pink-card.png`,
-    'beige': `${basePath}assets/images/suitcases/selected-suitcase-beige-card.png`,
-    'yellow': `${basePath}assets/images/suitcases/new-suitcase-yellow-card.png`,
-    'grey': `${basePath}assets/images/suitcases/new-suitcase-handgrey-card.png`,
-    'darkblue': `${basePath}assets/images/suitcases/new-suitcase-darkblue-card.png`
-  };
+  // Fallback to color-based images for products with color
+  if (product.color) {
+    const colorMap = {
+      'red': `${basePath}assets/images/suitcases/selected-suitcase-red-card.png`,
+      'blue': `${basePath}assets/images/suitcases/selected-suitcase-blue-card.png`,
+      'pink': `${basePath}assets/images/suitcases/selected-suitcase-pink-card.png`,
+      'beige': `${basePath}assets/images/suitcases/selected-suitcase-beige-card.png`,
+      'yellow': `${basePath}assets/images/suitcases/new-suitcase-yellow-card.png`,
+      'grey': `${basePath}assets/images/suitcases/new-suitcase-handgrey-card.png`,
+      'darkblue': `${basePath}assets/images/suitcases/new-suitcase-darkblue-card.png`
+    };
+    
+    if (colorMap[product.color]) {
+      return colorMap[product.color];
+    }
+  }
   
-  return colorMap[product.color] || `${basePath}assets/images/suitcases/selected-suitcase-red-card.png`;
+  // No image available - return null for gray background
+  return null;
 }
 
 // Rendering
@@ -64,11 +187,16 @@ function renderProductCard(product) {
   const hasSale = product.salesStatus;
   const imageUrl = getProductImageUrl(product);
   
+  // If no image, show gray background placeholder
+  const imageHTML = imageUrl 
+    ? `<img src="${imageUrl}" alt="${product.name}" class="product-card__image" onerror="this.style.background='#e0e0e0'; this.style.display='block'; this.style.width='100%'; this.style.height='100%'; this.alt='No image'; this.onerror=null;">`
+    : `<div class="product-card__image" style="background: #e0e0e0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">No image</div>`;
+  
   return `
     <article class="product-card">
       <div class="product-card__image-wrapper">
         <a href="${basePath}html/product-card.html?id=${product.id}">
-          <img src="${imageUrl}" alt="${product.name}" class="product-card__image">
+          ${imageHTML}
         </a>
         ${hasSale ? '<span class="product-card__tag">SALE</span>' : ''}
       </div>
@@ -477,28 +605,50 @@ async function addToCart(productId) {
     return;
   }
   
-  const basePath = getBasePath();
-  const jsonPath = `${basePath}assets/data.json`;
-  const response = await fetch(jsonPath);
-  if (!response.ok) {
-    return;
+  // First try to find in merged products (from loadProducts)
+  let product = allProducts.find(p => p.id === productId);
+  
+  // If not found, try to load from localStorage
+  if (!product) {
+    const adminProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+    product = adminProducts.find(p => p.id === productId);
   }
-  const data = await response.json();
-  const product = data.data.find(item => item.id === productId);
+  
+  // If still not found, try to load from JSON
+  if (!product) {
+    try {
+      const basePath = getBasePath();
+      const jsonPath = `${basePath}assets/data.json`;
+      const response = await fetch(jsonPath);
+      if (response.ok) {
+        const data = await response.json();
+        product = data.data.find(item => item.id === productId);
+      }
+    } catch (error) {
+      console.error('Error loading product:', error);
+    }
+  }
   
   if (!product) {
     return;
   }
   
+  const basePath = getBasePath();
   const imageUrl = getProductImageUrl(product, basePath);
   
-  addItemToCart(productId, 1, {
+  const added = addItemToCart(productId, 1, {
     name: product.name,
     price: product.price,
     image: imageUrl,
     size: '',
     color: product.color || ''
   });
+  
+  if (added) {
+    if (typeof updateCartCounter === 'function') {
+      updateCartCounter();
+    }
+  }
 }
 
 async function initCatalog() {

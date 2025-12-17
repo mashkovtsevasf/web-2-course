@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Shop - My Profile</title>
+  <link rel="icon" type="image/png" href="/src/assets/images/homepage/logo.png">
+  <link rel="stylesheet" href="/dist/css/main.css">
+</head>
+<body>
+  <div data-header></div>
+
+  <main>
+    <!-- Profile Hero Section -->
+    <section class="profile-hero">
+      <div class="container">
+        <div class="profile-hero__content">
+          <h1 class="profile-hero__title">My Profile</h1>
+          <p class="profile-hero__text">Manage your account settings and view your order history</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Profile Content -->
+    <section class="profile-content">
+      <div class="container">
+        <div class="profile-content__grid">
+          <!-- Profile Info -->
+          <div class="profile-card">
+            <h2 class="profile-card__title">Personal Information</h2>
+            <div class="profile-card__content">
+              <div class="profile-info">
+                <div class="profile-info__avatar">
+                  <img src="/src/assets/images/homepage/user.svg" alt="User Avatar" class="profile-info__avatar-img">
+                </div>
+              <div class="profile-info__details">
+                <h3 class="profile-info__name" id="profile-display-name">John Doe</h3>
+                <p class="profile-info__email" id="profile-display-email">john.doe@example.com</p>
+                <p class="profile-info__role">Regular User</p>
+              </div>
+              </div>
+              <div class="profile-form">
+                <div class="profile-form__field">
+                  <label class="profile-form__label">Full Name</label>
+                  <input type="text" id="profile-name-input" class="profile-form__input" value="John Doe">
+                </div>
+                <div class="profile-form__field">
+                  <label class="profile-form__label">Email</label>
+                  <input type="email" id="profile-email-input" class="profile-form__input" value="john.doe@example.com">
+                </div>
+                <div class="profile-form__field">
+                  <label class="profile-form__label">Phone</label>
+                  <input type="tel" id="profile-phone-input" class="profile-form__input" value="">
+                </div>
+                <div class="profile-form__field">
+                  <label class="profile-form__label">Address</label>
+                  <textarea id="profile-address-input" class="profile-form__textarea" rows="3"></textarea>
+                </div>
+                <button type="button" class="btn btn--primary" id="save-profile-btn">Save Changes</button>
+                <button class="btn btn--secondary" id="logout-profile-btn" style="margin-top: 10px;">Logout</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order History -->
+          <div class="profile-card">
+            <h2 class="profile-card__title">Order History</h2>
+            <div class="profile-card__content">
+              <div class="order-history">
+                <!-- Orders will be loaded dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer></div>
+  <script src="../js/api-client.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/profile.js"></script>
+</body>
+</html>
+
