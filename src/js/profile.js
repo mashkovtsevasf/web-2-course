@@ -31,7 +31,7 @@ function logout() {
   console.log('All user data cleared');
   
   // Redirect to home page
-  window.location.href = '/src/index.html';
+  window.location.href = window.location.origin + '/index.html';
 }
 
 function getBasePath() {

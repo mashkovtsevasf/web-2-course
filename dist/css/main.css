@@ -4113,6 +4113,7 @@ a.footer__contact-text:hover {
   }
   .admin-dashboard__grid {
     flex-direction: column;
+    align-items: center;
   }
   .admin-table {
     display: block;

@@ -955,8 +955,75 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           } catch (error) {
             console.error('Error saving product via API:', error);
-            alert(`Error saving product via API: ${error.message || 'Unknown error'}. Falling back to localStorage.`);
-            // Fall through to localStorage save
+            
+            // Check if error is about product code already existing
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('Product code already exists') || error.status === 409) {
+              try {
+                console.log('Product code already exists, generating new code...');
+                
+                // Force reload products from API to get latest state
+                if (typeof window !== 'undefined' && window.apiClient) {
+                  await window.apiClient.getProducts();
+                }
+                
+                // Generate new code
+                finalProductId = await generateProductId(category);
+                console.log('Generated new product code:', finalProductId);
+                
+                // Get category again (in case it was lost)
+                const categories = await window.apiClient.getCategories();
+                const categorySlugMap = {
+                  'suitcases': 'suitcases',
+                  'carry-ons': 'carry-ons',
+                  'luggage sets': 'luggage-sets',
+                  "kids' luggage": 'kids-luggage',
+                  'kids luggage': 'kids-luggage'
+                };
+                const categorySlug = categorySlugMap[category] || category;
+                const categoryObj = categories.find(c => c.category_slug === categorySlug);
+                
+                if (!categoryObj) {
+                  throw new Error(`Category "${category}" not found`);
+                }
+                
+                // Create product data with new code
+                const retryProductData = {
+                  product_code: finalProductId,
+                  name: name,
+                  description: description || null,
+                  price: price,
+                  stock: stock,
+                  image_url: imageUrl || null,
+                  color: null,
+                  size: null,
+                  category_id: categoryObj.category_id,
+                  sales_status: true,
+                  rating: 0,
+                  popularity: 0
+                };
+                
+                // Retry with new code
+                await window.apiClient.createProduct(retryProductData);
+                alert('Product created successfully!');
+                
+                closeProductModal();
+                await loadAndRenderProducts();
+                
+                if (typeof window !== 'undefined' && window.updateAdminStatistics) {
+                  window.updateAdminStatistics();
+                }
+                
+                return;
+              } catch (retryError) {
+                console.error('Error on retry:', retryError);
+                alert(`Error saving product via API: ${retryError.message || 'Unknown error'}. Falling back to localStorage.`);
+                // Fall through to localStorage save
+              }
+            } else {
+              alert(`Error saving product via API: ${error.message || 'Unknown error'}. Falling back to localStorage.`);
+              // Fall through to localStorage save
+            }
           }
         }
         

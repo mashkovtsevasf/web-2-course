@@ -80,7 +80,7 @@ function loadHeader() {
               <span></span>
             </button>
             <div class="header__logo">
-              <a href="${basePath}index.html" style="display: flex; align-items: center; gap: 13px; text-decoration: none;">
+              <a href="/index.html" style="display: flex; align-items: center; gap: 13px; text-decoration: none;">
                 <img src="${basePath}assets/images/homepage/logo.png" alt="Best Shop">
                 <span class="header__logo-text">BEST SHOP</span>
               </a>
@@ -98,7 +98,7 @@ function loadHeader() {
       <nav class="header__nav" id="header-nav">
         <div class="container">
           <ul class="header__nav-list">
-            <li><a href="${basePath}index.html" class="header__nav-link ${currentPage === 'home' ? 'header__nav-link--active' : ''}">Home</a></li>
+            <li><a href="/index.html" class="header__nav-link ${currentPage === 'home' ? 'header__nav-link--active' : ''}">Home</a></li>
             <li class="header__nav-item--dropdown">
               <a href="${basePath}html/catalog.html" class="header__nav-link ${currentPage === 'catalog' ? 'header__nav-link--active' : ''}">
                 Catalog
@@ -204,8 +204,7 @@ function logout() {
   }, 100);
   
   // Redirect to home page
-  const basePath = typeof getBasePath === 'function' ? getBasePath() : '/src/';
-  window.location.href = `${basePath}index.html`;
+  window.location.href = window.location.origin + '/index.html';
 }
 
 // Load footer
@@ -814,7 +813,7 @@ function initLoginModal() {
               if (userRole === 'admin') {
                 window.location.href = `${getBasePath()}html/admin.html`;
               } else {
-                window.location.href = `${getBasePath()}index.html`;
+                window.location.href = window.location.origin + '/index.html';
               }
             }, 300);
             return;
@@ -858,7 +857,7 @@ function initLoginModal() {
           if (userRole === 'admin') {
             window.location.href = `${getBasePath()}html/admin.html`;
           } else {
-            window.location.href = `${getBasePath()}index.html`;
+            window.location.href = window.location.origin + '/index.html';
           }
         }, 300);
       } else {
@@ -1130,7 +1129,7 @@ function initRegisterModal() {
             
             // Redirect to home page
             setTimeout(() => {
-              window.location.href = `${getBasePath()}index.html`;
+              window.location.href = '/index.html';
             }, 300);
             return;
           }
@@ -1185,7 +1184,7 @@ function initRegisterModal() {
       
       // Redirect to home page
       setTimeout(() => {
-        window.location.href = `${getBasePath()}index.html`;
+        window.location.href = '/index.html';
       }, 300);
     });
   }

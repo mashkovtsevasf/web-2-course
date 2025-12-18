@@ -65,6 +65,9 @@ FOREIGN KEY
 - UserRoles: 
   - user_id -> Users(user_id) (CASCADE DELETE/UPDATE)
   - role_id -> Roles(role_id) (RESTRICT DELETE)
+  - assigned_by -> Users(user_id) (SET NULL DELETE)
+- Categories:
+  - parent_category_id -> Categories(category_id) (SET NULL DELETE)
 - Products: 
   - category_id -> Categories(category_id) (RESTRICT DELETE)
 - Orders: 
@@ -80,28 +83,43 @@ FOREIGN KEY
 UNIQUE
 - Users.email - унікальний email
 - Roles.role_name - унікальна назва ролі
+- Categories.category_name - унікальна назва категорії
+- Categories.category_slug - унікальний slug категорії
 - Products.product_code - унікальний код продукту
 - Orders.order_number - унікальний номер замовлення
 - UserRoles(user_id, role_id) - унікальна комбінація
+- Sessions.token - унікальний токен сесії
 
 CHECK
 - Roles.role_name IN ('guest', 'user', 'admin')
-- Users.email має формат email
+- Users.email має формат email (LIKE '%@%.%')
 - Users.password_hash мінімум 8 символів
+- Categories.category_name != ''
 - Products.price >= 0
 - Products.stock >= 0
 - Products.rating від 0 до 5
+- Products.popularity >= 0
+- Orders.subtotal >= 0
+- Orders.shipping >= 0
+- Orders.discount >= 0
+- Orders.total >= 0
 - Orders.status IN ('pending', 'processing', 'completed', 'cancelled')
 - OrderItems.quantity > 0
+- OrderItems.product_price >= 0
+- OrderItems.subtotal >= 0
+- Sessions.expires_at > created_at
+- AuditLogs.action_type IN ('INSERT', 'UPDATE', 'DELETE')
 
 Індекси
 
 Створені індекси для оптимізації:
-- По email користувачів
-- По статусу замовлень
-- По категорії продуктів
-- По даті створення
-- По зовнішніх ключах
+- Users: email, is_active
+- UserRoles: user_id, role_id
+- Products: category_id, product_code, is_active, sales_status, price
+- Orders: user_id, status, created_at, order_number
+- OrderItems: order_id, product_id
+- Sessions: user_id, token, expires_at
+- AuditLogs: user_id, table_name, created_at
 
 Тригери
 
