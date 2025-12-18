@@ -3,12 +3,14 @@
 function getBasePath() {
   const path = window.location.pathname;
   const isSubPage = path.includes('/html/');
-  const srcPath = '/src';
+  
+  // Detect if we're on GitHub Pages (path contains repository name)
+  const isGitHubPages = path.includes('/web-2-course/');
+  const repoBase = isGitHubPages ? '/web-2-course' : '';
+  
+  const srcPath = `${repoBase}/src`;
   const slash = '/';
   
-  if (isSubPage) {
-    return `${srcPath}${slash}`;
-  }
   return `${srcPath}${slash}`;
 }
 
