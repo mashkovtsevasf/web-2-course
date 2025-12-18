@@ -1,4 +1,13 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+// Auto-detect API base URL
+const API_BASE_URL = (function() {
+  // Check if we're on GitHub Pages
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  if (isGitHubPages) {
+    // API won't work on GitHub Pages, but return a placeholder
+    return 'http://localhost:3000/api';
+  }
+  return 'http://localhost:3000/api';
+})();
 
 class ApiClient {
   constructor(baseURL = API_BASE_URL) {

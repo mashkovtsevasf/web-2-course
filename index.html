@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Best Shop - Home</title>
+  <script>
+    // Auto-detect base path for GitHub Pages
+    (function() {
+      const path = window.location.pathname;
+      const isGitHubPages = path.includes('/web-2-course/');
+      const base = isGitHubPages ? '/web-2-course' : '';
+      document.write('<base href="' + base + '/">');
+    })();
+  </script>
   <link rel="icon" type="image/png" href="/src/assets/images/homepage/logo.png">
   <link rel="stylesheet" href="/dist/css/main.css">
 </head>
@@ -137,6 +146,16 @@
   </main>
 
   <div data-footer></div>
+  <script>
+    // Fix API base URL for GitHub Pages
+    (function() {
+      const path = window.location.pathname;
+      const isGitHubPages = path.includes('/web-2-course/');
+      if (isGitHubPages) {
+        window.GITHUB_PAGES_BASE = '/web-2-course';
+      }
+    })();
+  </script>
   <script src="/src/js/api-client.js"></script>
   <script src="/src/js/main.js"></script>
   <script src="/src/js/home.js"></script>
