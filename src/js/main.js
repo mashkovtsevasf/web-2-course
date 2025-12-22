@@ -1,19 +1,12 @@
-// Layout components - Header and Footer
-
 function getBasePath() {
   const path = window.location.pathname;
   const isSubPage = path.includes('/html/');
-  
-  // Detect if we're on GitHub Pages (path contains repository name)
   const isGitHubPages = path.includes('/web-2-course/');
   const repoBase = isGitHubPages ? '/web-2-course' : '';
-  
   const srcPath = `${repoBase}/src`;
   const slash = '/';
-  
   return `${srcPath}${slash}`;
 }
-
 function getCurrentPage() {
   const path = window.location.pathname;
   if (path.includes('catalog.html')) return 'catalog';
@@ -23,14 +16,11 @@ function getCurrentPage() {
   if (path.includes('product')) return 'product';
   return 'home';
 }
-
 function loadHeader() {
   const basePath = getBasePath();
   const currentPage = getCurrentPage();
   const loggedIn = isLoggedIn();
   const userRole = localStorage.getItem('userRole') || 'guest';
-  
-  // Determine account button based on login status
   let accountButtonHTML = '';
   if (loggedIn) {
     if (userRole === 'admin') {
@@ -60,7 +50,6 @@ function loadHeader() {
       </button>
     `;
   }
-  
   const headerHTML = `
     <header class="header">
       <div class="header__top">
@@ -120,34 +109,28 @@ function loadHeader() {
       </nav>
     </header>
   `;
-  
   const headerPlaceholder = document.querySelector('[data-header]');
   if (headerPlaceholder) {
     headerPlaceholder.innerHTML = headerHTML;
   } else {
     document.body.insertAdjacentHTML('afterbegin', headerHTML);
   }
-  
-  // Setup user menu dropdown for admin
   if (loggedIn && userRole === 'admin') {
     const accountBtn = document.getElementById('account-btn');
     const userDropdown = document.getElementById('user-dropdown');
     const logoutBtn = document.getElementById('logout-btn');
-    
     if (accountBtn && userDropdown) {
       accountBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
       });
-      
       document.addEventListener('click', (e) => {
         if (!accountBtn.contains(e.target) && !userDropdown.contains(e.target)) {
           userDropdown.style.display = 'none';
         }
       });
     }
-    
     if (logoutBtn) {
       logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -156,14 +139,9 @@ function loadHeader() {
       });
     }
   }
-  
 }
-
-// Global logout function - clears all user data
 function logout() {
   console.log('Logout called');
-  
-  // Clear API session
   if (typeof window !== 'undefined' && window.apiClient) {
     try {
       if (window.apiClient.isAuthenticated && window.apiClient.isAuthenticated()) {
@@ -173,8 +151,6 @@ function logout() {
       console.error('Logout error:', error);
     }
   }
-  
-  // Clear all user data from localStorage
   localStorage.removeItem('userRole');
   localStorage.removeItem('userEmail');
   localStorage.removeItem('userName');
@@ -182,32 +158,20 @@ function logout() {
   localStorage.removeItem('authToken');
   localStorage.removeItem('userPhone');
   localStorage.removeItem('userAddress');
-  
-  // Clear cart data
   localStorage.removeItem('cart');
-  
   console.log('All user data cleared');
-  
-  // Reload header to show login button
   if (typeof loadHeader === 'function') {
     loadHeader();
   }
-  
-  // Re-initialize login modal for the new login button
   setTimeout(() => {
     if (typeof initLoginModal === 'function') {
       initLoginModal();
     }
   }, 100);
-  
-  // Redirect to home page
   window.location.href = window.location.origin + '/index.html';
 }
-
-// Load footer
 function loadFooter() {
   const basePath = getBasePath();
-  
   const footerHTML = `
     <footer class="footer">
       <section class="benefits">
@@ -308,7 +272,6 @@ function loadFooter() {
       </div>
     </footer>
   `;
-  
   const footerPlaceholder = document.querySelector('[data-footer]');
   if (footerPlaceholder) {
     footerPlaceholder.innerHTML = footerHTML;
@@ -316,11 +279,8 @@ function loadFooter() {
     document.body.insertAdjacentHTML('beforeend', footerHTML);
   }
 }
-
-// Load offer banner
 function loadOfferBanner() {
   const basePath = getBasePath();
-  
   const offerHTML = `
     <section class="offer-banner">
       <div class="container">
@@ -340,14 +300,11 @@ function loadOfferBanner() {
       </div>
     </section>
   `;
-  
   const offerPlaceholder = document.querySelector('[data-offer-banner]');
   if (offerPlaceholder) {
     offerPlaceholder.innerHTML = offerHTML;
   }
 }
-
-// Cart management
 function getCartFromStorage() {
   try {
     const cart = localStorage.getItem('cart');
@@ -356,15 +313,12 @@ function getCartFromStorage() {
     return [];
   }
 }
-
 function saveCartToStorage(cart) {
-  // Additional check before saving - prevent saving if user is not logged in
   const loggedIn = isLoggedIn();
   if (!loggedIn) {
     console.log('BLOCKING saveCartToStorage: User not logged in');
     return false;
   }
-  
   try {
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCounter();
@@ -374,10 +328,7 @@ function saveCartToStorage(cart) {
     return false;
   }
 }
-
-// Check if user is logged in
 function isLoggedIn() {
-  // First check API client if available
   if (typeof window !== 'undefined' && window.apiClient && window.apiClient.isAuthenticated) {
     try {
       const apiAuth = window.apiClient.isAuthenticated();
@@ -389,29 +340,21 @@ function isLoggedIn() {
       console.log('API auth check failed:', e);
     }
   }
-  
-  // Check localStorage - must have explicit login flag
   const isLoggedInStorage = localStorage.getItem('isLoggedIn');
   const hasAuthToken = localStorage.getItem('authToken');
   const hasUserEmail = localStorage.getItem('userEmail');
   const hasUserRole = localStorage.getItem('userRole');
-  
   console.log('isLoggedIn check:', {
     isLoggedInStorage,
     hasAuthToken: !!hasAuthToken,
     hasUserEmail: !!hasUserEmail,
     hasUserRole
   });
-  
-  // User is logged in only if explicitly marked as logged in AND has user data
   const isLoggedIn = isLoggedInStorage === 'true' && 
                      (hasAuthToken || (hasUserEmail && hasUserRole && hasUserRole !== 'guest'));
-  
   console.log('Final isLoggedIn result:', isLoggedIn);
   return isLoggedIn;
 }
-
-// Function to open login modal
 function openLoginModal() {
   const loginModal = document.getElementById('login-modal');
   if (loginModal) {
@@ -419,37 +362,28 @@ function openLoginModal() {
     document.body.style.overflow = 'hidden';
   }
 }
-
 function addItemToCart(productId, quantity, productData) {
-  // Check if user is logged in - STRICT CHECK
   const loggedIn = isLoggedIn();
-  
   console.log('=== addItemToCart called ===');
   console.log('Product ID:', productId);
   console.log('User logged in:', loggedIn);
-  
   if (!loggedIn) {
     console.log('BLOCKING: User not logged in, preventing cart addition');
-    // Show message and open login modal
     alert('Будь ласка, увійдіть в акаунт або зареєструйтеся, щоб додати товар в корзину');
     setTimeout(() => {
       openLoginModal();
     }, 100);
     return false;
   }
-  
   console.log('ALLOWING: User is logged in, adding to cart');
-  
   const cart = getCartFromStorage();
   const size = productData.size || '';
   const color = productData.color || '';
-  
   const matchingItem = cart.find(item => 
     item.name === productData.name && 
     item.size === size && 
     item.color === color
   );
-  
   if (matchingItem) {
     matchingItem.quantity += quantity;
   } else {
@@ -463,21 +397,17 @@ function addItemToCart(productId, quantity, productData) {
       color: color
     });
   }
-  
   const saved = saveCartToStorage(cart);
   if (!saved) {
     console.error('Failed to save cart - user not logged in');
     return false;
   }
-  
   return true;
 }
-
 function updateCartCounter() {
   const cart = getCartFromStorage();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartCountEl = document.getElementById('cart-count');
-  
   if (cartCountEl) {
     if (totalItems > 0) {
       cartCountEl.textContent = totalItems;
@@ -487,19 +417,15 @@ function updateCartCounter() {
     }
   }
 }
-
-// Navigation
 function initBurgerMenu() {
   const burgerBtn = document.getElementById('burger-menu');
   const nav = document.getElementById('header-nav');
-  
   if (burgerBtn && nav) {
     burgerBtn.addEventListener('click', () => {
       burgerBtn.classList.toggle('active');
       nav.classList.toggle('active');
       document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
     });
-    
     nav.addEventListener('click', (e) => {
       if (e.target === nav) {
         burgerBtn.classList.remove('active');
@@ -507,7 +433,6 @@ function initBurgerMenu() {
         document.body.style.overflow = '';
       }
     });
-    
     const navLinks = nav.querySelectorAll('.header__nav-link');
     navLinks.forEach(link => {
       link.addEventListener('click', () => {
@@ -516,13 +441,11 @@ function initBurgerMenu() {
         document.body.style.overflow = '';
       });
     });
-    
     const dropdownItems = nav.querySelectorAll('.header__nav-item--dropdown');
     dropdownItems.forEach(item => {
       const link = item.querySelector('.header__nav-link');
       const arrow = item.querySelector('.header__nav-arrow');
       const menu = item.querySelector('.header__dropdown-menu');
-      
       const toggleDropdown = (e) => {
         if (window.innerWidth <= 1024 && nav.classList.contains('active')) {
           e.preventDefault();
@@ -530,19 +453,15 @@ function initBurgerMenu() {
           menu.classList.toggle('active');
         }
       };
-      
       if (link && menu) {
         link.addEventListener('click', toggleDropdown);
       }
-      
       if (arrow && menu) {
         arrow.addEventListener('click', toggleDropdown);
       }
     });
   }
 }
-
-// Login modal
 function loadLoginModal() {
   const modalHTML = `
     <div class="login-modal" id="login-modal" style="display: none;">
@@ -563,7 +482,6 @@ function loadLoginModal() {
             >
             <span class="login-modal__error" id="email-error"></span>
           </div>
-          
           <div class="login-modal__field">
             <label for="login-password" class="login-modal__label">
               Password<span class="login-modal__required">*</span>
@@ -583,14 +501,13 @@ function loadLoginModal() {
                 id="toggle-password"
                 aria-label="Toggle password visibility"
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http:
                   <path d="M10 3C5.5 3 1.73 6.11 0 10.5C1.73 14.89 5.5 18 10 18C14.5 18 18.27 14.89 20 10.5C18.27 6.11 14.5 3 10 3ZM10 15.5C7.52 15.5 5.5 13.48 5.5 11C5.5 8.52 7.52 6.5 10 6.5C12.48 6.5 14.5 8.52 14.5 11C14.5 13.48 12.48 15.5 10 15.5ZM10 8C8.62 8 7.5 9.12 7.5 10.5C7.5 11.88 8.62 13 10 13C11.38 13 12.5 11.88 12.5 10.5C12.5 9.12 11.38 8 10 8Z" fill="#727174"/>
                 </svg>
               </button>
             </div>
             <span class="login-modal__error" id="password-error"></span>
           </div>
-          
           <div class="login-modal__options">
             <label class="login-modal__checkbox-label">
               <input type="checkbox" name="remember" class="login-modal__checkbox">
@@ -598,9 +515,7 @@ function loadLoginModal() {
             </label>
             <a href="#" class="login-modal__forgot-link">Forgot Your Password?</a>
           </div>
-          
           <button type="submit" class="login-modal__submit btn btn--primary">LOG IN</button>
-          
           <div class="login-modal__register-link">
             <p>Don't have an account? <a href="#" id="register-link">Sign up</a></p>
           </div>
@@ -608,10 +523,8 @@ function loadLoginModal() {
       </div>
     </div>
   `;
-  
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
-
 function initLoginModal() {
   const accountBtn = document.getElementById('account-btn');
   const loginModal = document.getElementById('login-modal');
@@ -622,17 +535,12 @@ function initLoginModal() {
   const emailError = document.getElementById('email-error');
   const passwordError = document.getElementById('password-error');
   const registerLink = document.getElementById('register-link');
-  
   if (!loginModal) return;
-  
-  // Check if user is already logged in - if yes, don't setup login modal
   const loggedIn = isLoggedIn();
   if (loggedIn) {
     console.log('User is logged in, skipping login modal setup');
-    return; // If logged in, account button should be a link, not open modal
+    return; 
   }
-  
-  // Handle register link click
   if (registerLink) {
     registerLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -640,17 +548,11 @@ function initLoginModal() {
       openRegisterModal();
     });
   }
-  
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
-  // Use event delegation for account-btn (works even after header reload)
   if (accountBtn) {
-    // Remove existing event listeners by cloning and replacing
     const newAccountBtn = accountBtn.cloneNode(true);
     accountBtn.parentNode.replaceChild(newAccountBtn, accountBtn);
-    
     newAccountBtn.addEventListener('click', (e) => {
-      // Only open modal if user is not logged in
       if (!isLoggedIn()) {
         e.preventDefault();
         e.stopPropagation();
@@ -659,17 +561,14 @@ function initLoginModal() {
           document.body.style.overflow = 'hidden';
         }
       }
-      // If logged in, let the link work normally
     });
   }
-  
   const overlay = loginModal.querySelector('.login-modal__overlay');
   if (overlay) {
     overlay.addEventListener('click', () => {
       closeLoginModal();
     });
   }
-  
   function closeLoginModal() {
     loginModal.style.display = 'none';
     document.body.style.overflow = '';
@@ -679,12 +578,10 @@ function initLoginModal() {
     emailInput.classList.remove('login-modal__input--error');
     passwordInput.classList.remove('login-modal__input--error');
   }
-  
   if (togglePasswordBtn && passwordInput) {
     togglePasswordBtn.addEventListener('click', () => {
       const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
       passwordInput.setAttribute('type', type);
-      
       const svg = togglePasswordBtn.querySelector('svg');
       if (type === 'text') {
         svg.style.opacity = '0.5';
@@ -693,19 +590,16 @@ function initLoginModal() {
       }
     });
   }
-  
   if (emailInput) {
     emailInput.addEventListener('blur', () => {
       validateEmail();
     });
-    
     emailInput.addEventListener('input', () => {
       if (emailError.textContent) {
         validateEmail();
       }
     });
   }
-  
   function validateEmail() {
     const email = emailInput.value.trim();
     if (!email) {
@@ -713,7 +607,6 @@ function initLoginModal() {
       emailInput.classList.remove('login-modal__input--error');
       return false;
     }
-    
     if (!emailRegex.test(email)) {
       emailError.textContent = 'Please enter a valid email address';
       emailInput.classList.add('login-modal__input--error');
@@ -724,8 +617,6 @@ function initLoginModal() {
       return true;
     }
   }
-  
-  // Password validation
   function validatePassword() {
     const password = passwordInput.value;
     if (!password) {
@@ -738,8 +629,6 @@ function initLoginModal() {
       return true;
     }
   }
-  
-  // Helper functions for user management
   function getRegisteredUsers() {
     try {
       const users = localStorage.getItem('registeredUsers');
@@ -748,64 +637,46 @@ function initLoginModal() {
       return [];
     }
   }
-  
   function findUser(email, password) {
     const users = getRegisteredUsers();
     return users.find(u => u.email === email && u.password === password);
   }
-  
-  // Form submission
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       console.log('Login form submitted');
-      
       const isEmailValid = validateEmail();
       const isPasswordValid = validatePassword();
-      
       if (!isEmailValid || !isPasswordValid) {
         console.log('Validation failed');
         return;
       }
-      
       const email = emailInput.value.trim();
       const password = passwordInput.value;
-      
       console.log('Attempting login for:', email);
-      
-      // Try API login first
       if (typeof window !== 'undefined' && window.apiClient) {
         try {
           const response = await window.apiClient.login(email, password);
           console.log('API login response:', response);
-          
           if (response.token && response.user) {
             const user = response.user;
             const userRoles = user.roles || [];
             const userRole = userRoles.includes('admin') ? 'admin' : 'user';
-            
-            // Save user session
             localStorage.setItem('userRole', userRole);
             localStorage.setItem('userEmail', user.email);
             localStorage.setItem('userName', user.name || (userRole === 'admin' ? 'Admin' : user.email));
             localStorage.setItem('isLoggedIn', 'true');
-            
             if (user.phone) {
               localStorage.setItem('userPhone', user.phone);
             }
             if (user.address) {
               localStorage.setItem('userAddress', user.address);
             }
-            
             console.log('Login successful via API');
             closeLoginModal();
-            
-            // Reload header to show user info
             if (typeof loadHeader === 'function') {
               loadHeader();
             }
-            
-            // Redirect based on role
             setTimeout(() => {
               if (userRole === 'admin') {
                 window.location.href = `${getBasePath()}html/admin.html`;
@@ -817,39 +688,29 @@ function initLoginModal() {
           }
         } catch (error) {
           console.error('API login error:', error);
-          // Fall through to localStorage check
         }
       }
-      
-      // Fallback to localStorage
       const user = findUser(email, password);
       if (user) {
         let userRole = user.role || 'user';
         if (email === 'admin@bestshop.com') {
           userRole = 'admin';
         }
-        
         localStorage.setItem('userRole', userRole);
         localStorage.setItem('userEmail', user.email);
         localStorage.setItem('userName', user.name || (userRole === 'admin' ? 'Admin' : user.email));
         localStorage.setItem('isLoggedIn', 'true');
-        
         if (user.phone) {
           localStorage.setItem('userPhone', user.phone);
         }
         if (user.address) {
           localStorage.setItem('userAddress', user.address);
         }
-        
         console.log('Login successful via localStorage');
         closeLoginModal();
-        
-        // Reload header to show user info
         if (typeof loadHeader === 'function') {
           loadHeader();
         }
-        
-        // Redirect based on role
         setTimeout(() => {
           if (userRole === 'admin') {
             window.location.href = `${getBasePath()}html/admin.html`;
@@ -865,21 +726,16 @@ function initLoginModal() {
     });
   }
 }
-
-// Register modal
 function loadRegisterModal() {
-  // Check if modal already exists
   if (document.getElementById('register-modal')) {
     return;
   }
-  
   const modalHTML = `
     <div class="login-modal" id="register-modal" style="display: none;">
       <div class="login-modal__overlay"></div>
       <div class="login-modal__content">
         <form class="login-modal__form" id="register-form">
           <h2 style="margin-bottom: 20px; font-size: 24px; font-weight: 700;">Sign Up</h2>
-          
           <div class="login-modal__field">
             <label for="register-name" class="login-modal__label">
               Name<span class="login-modal__required">*</span>
@@ -894,7 +750,6 @@ function loadRegisterModal() {
             >
             <span class="login-modal__error" id="register-name-error"></span>
           </div>
-          
           <div class="login-modal__field">
             <label for="register-email" class="login-modal__label">
               Email address<span class="login-modal__required">*</span>
@@ -909,7 +764,6 @@ function loadRegisterModal() {
             >
             <span class="login-modal__error" id="register-email-error"></span>
           </div>
-          
           <div class="login-modal__field">
             <label for="register-password" class="login-modal__label">
               Password<span class="login-modal__required">*</span>
@@ -930,14 +784,13 @@ function loadRegisterModal() {
                 id="toggle-register-password"
                 aria-label="Toggle password visibility"
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http:
                   <path d="M10 3C5.5 3 1.73 6.11 0 10.5C1.73 14.89 5.5 18 10 18C14.5 18 18.27 14.89 20 10.5C18.27 6.11 14.5 3 10 3ZM10 15.5C7.52 15.5 5.5 13.48 5.5 11C5.5 8.52 7.52 6.5 10 6.5C12.48 6.5 14.5 8.52 14.5 11C14.5 13.48 12.48 15.5 10 15.5ZM10 8C8.62 8 7.5 9.12 7.5 10.5C7.5 11.88 8.62 13 10 13C11.38 13 12.5 11.88 12.5 10.5C12.5 9.12 11.38 8 10 8Z" fill="#727174"/>
                 </svg>
               </button>
             </div>
             <span class="login-modal__error" id="register-password-error"></span>
           </div>
-          
           <div class="login-modal__field">
             <label for="register-phone" class="login-modal__label">
               Phone (optional)
@@ -951,7 +804,6 @@ function loadRegisterModal() {
             >
             <span class="login-modal__error" id="register-phone-error"></span>
           </div>
-          
           <div class="login-modal__field">
             <label for="register-address" class="login-modal__label">
               Address (optional)
@@ -965,9 +817,7 @@ function loadRegisterModal() {
             >
             <span class="login-modal__error" id="register-address-error"></span>
           </div>
-          
           <button type="submit" class="login-modal__submit btn btn--primary">SIGN UP</button>
-          
           <div class="login-modal__register-link">
             <p>Already have an account? <a href="#" id="login-link">Log in</a></p>
           </div>
@@ -975,11 +825,9 @@ function loadRegisterModal() {
       </div>
     </div>
   `;
-  
   document.body.insertAdjacentHTML('beforeend', modalHTML);
   initRegisterModal();
 }
-
 function openRegisterModal() {
   const registerModal = document.getElementById('register-modal');
   if (registerModal) {
@@ -987,7 +835,6 @@ function openRegisterModal() {
     document.body.style.overflow = 'hidden';
   }
 }
-
 function closeRegisterModal() {
   const registerModal = document.getElementById('register-modal');
   const registerForm = document.getElementById('register-form');
@@ -999,7 +846,6 @@ function closeRegisterModal() {
     }
   }
 }
-
 function initRegisterModal() {
   const registerModal = document.getElementById('register-modal');
   const registerForm = document.getElementById('register-form');
@@ -1008,10 +854,7 @@ function initRegisterModal() {
   const passwordInput = document.getElementById('register-password');
   const emailInput = document.getElementById('register-email');
   const nameInput = document.getElementById('register-name');
-  
   if (!registerModal || !registerForm) return;
-  
-  // Handle login link click
   if (loginLink) {
     loginLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1023,19 +866,16 @@ function initRegisterModal() {
       }
     });
   }
-  
   const overlay = registerModal.querySelector('.login-modal__overlay');
   if (overlay) {
     overlay.addEventListener('click', () => {
       closeRegisterModal();
     });
   }
-  
   if (togglePasswordBtn && passwordInput) {
     togglePasswordBtn.addEventListener('click', () => {
       const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
       passwordInput.setAttribute('type', type);
-      
       const svg = togglePasswordBtn.querySelector('svg');
       if (type === 'text') {
         svg.style.opacity = '0.5';
@@ -1044,32 +884,24 @@ function initRegisterModal() {
       }
     });
   }
-  
-  // Form submission
   if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
       const name = nameInput ? nameInput.value.trim() : '';
       const email = emailInput ? emailInput.value.trim() : '';
       const password = passwordInput ? passwordInput.value : '';
       const phone = document.getElementById('register-phone') ? document.getElementById('register-phone').value.trim() : '';
       const address = document.getElementById('register-address') ? document.getElementById('register-address').value.trim() : '';
-      
       const emailError = document.getElementById('register-email-error');
       const passwordError = document.getElementById('register-password-error');
       const nameError = document.getElementById('register-name-error');
-      
-      // Validation
       let isValid = true;
-      
       if (!name) {
         if (nameError) nameError.textContent = 'Name is required';
         isValid = false;
       } else {
         if (nameError) nameError.textContent = '';
       }
-      
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email)) {
         if (emailError) emailError.textContent = 'Please enter a valid email address';
@@ -1077,17 +909,13 @@ function initRegisterModal() {
       } else {
         if (emailError) emailError.textContent = '';
       }
-      
       if (!password || password.length < 8) {
         if (passwordError) passwordError.textContent = 'Password must be at least 8 characters';
         isValid = false;
       } else {
         if (passwordError) passwordError.textContent = '';
       }
-      
       if (!isValid) return;
-      
-      // Try API registration first
       if (typeof window !== 'undefined' && window.apiClient) {
         try {
           const response = await window.apiClient.register({
@@ -1097,34 +925,25 @@ function initRegisterModal() {
             phone: phone || null,
             address: address || null
           });
-          
           if (response.token && response.user) {
             const user = response.user;
             const userRoles = user.roles || [];
             const userRole = userRoles.includes('admin') ? 'admin' : 'user';
-            
-            // Save user session
             localStorage.setItem('userRole', userRole);
             localStorage.setItem('userEmail', user.email);
             localStorage.setItem('userName', user.name);
             localStorage.setItem('isLoggedIn', 'true');
-            
             if (user.phone) {
               localStorage.setItem('userPhone', user.phone);
             }
             if (user.address) {
               localStorage.setItem('userAddress', user.address);
             }
-            
             console.log('Registration successful via API');
             closeRegisterModal();
-            
-            // Reload header to show user info
             if (typeof loadHeader === 'function') {
               loadHeader();
             }
-            
-            // Redirect to home page
             setTimeout(() => {
               window.location.href = '/index.html';
             }, 300);
@@ -1138,55 +957,42 @@ function initRegisterModal() {
           return;
         }
       }
-      
-      // Fallback to localStorage registration
       const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
       const existingUser = registeredUsers.find(u => u.email === email);
-      
       if (existingUser) {
         if (emailError) {
           emailError.textContent = 'This email is already registered';
         }
         return;
       }
-      
       const newUser = {
         email,
         name,
-        password, // In real app, this should be hashed
+        password, 
         phone: phone || null,
         address: address || null,
         role: 'user',
         registeredDate: new Date().toISOString()
       };
-      
       registeredUsers.push(newUser);
       localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-      
-      // Auto-login after registration
       localStorage.setItem('userRole', 'user');
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userName', name);
       localStorage.setItem('isLoggedIn', 'true');
       if (phone) localStorage.setItem('userPhone', phone);
       if (address) localStorage.setItem('userAddress', address);
-      
       console.log('Registration successful via localStorage');
       closeRegisterModal();
-      
-      // Reload header to show user info
       if (typeof loadHeader === 'function') {
         loadHeader();
       }
-      
-      // Redirect to home page
       setTimeout(() => {
         window.location.href = '/index.html';
       }, 300);
     });
   }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   loadHeader();
   loadFooter();
@@ -1194,7 +1000,6 @@ document.addEventListener('DOMContentLoaded', () => {
   loadLoginModal();
   loadRegisterModal();
   updateCartCounter();
-  
   setTimeout(() => {
     initBurgerMenu();
     initLoginModal();

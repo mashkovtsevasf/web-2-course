@@ -10,7 +10,7 @@ npm
 Встановлення та запуск
 
 1. Встановити залежності:
-npm install
+   npm install
 
 2. Запуск повного сервера (бекенд + фронтенд):
 
@@ -31,7 +31,7 @@ npm run dev:all
 npm run server
 
 Термінал 2 (фронтенд):
-npm run dev
+   npm run dev
 
 Або просто фронтенд без бекенду:
 npm run start

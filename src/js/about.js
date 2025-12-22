@@ -1,3 +1,0 @@
-// About Us page functionality
-
-

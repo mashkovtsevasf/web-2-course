@@ -1,22 +1,14 @@
-// Admin orders functionality
-
 let cachedOrders = [];
 let lastFetchTime = 0;
-const CACHE_DURATION = 2000; // 2 seconds cache (reduced for better real-time updates)
-
+const CACHE_DURATION = 2000; 
 async function getAllOrders(forceRefresh = false) {
-  // Try to load from API first (if admin is authenticated)
   if (typeof window !== 'undefined' && window.apiClient && window.apiClient.isAuthenticated()) {
     try {
       const now = Date.now();
-      // Use cache if available and fresh, unless force refresh is requested
       if (!forceRefresh && cachedOrders.length > 0 && (now - lastFetchTime) < CACHE_DURATION) {
         return cachedOrders;
       }
-      
-      const orders = await window.apiClient.getOrders(); // Get all orders (admin can see all)
-      
-      // Transform API orders to match expected format
+      const orders = await window.apiClient.getOrders(); 
       const transformedOrders = orders.map(order => {
         const normalizedStatus = (order.status || 'pending').toLowerCase().trim();
         return {
@@ -35,21 +27,16 @@ async function getAllOrders(forceRefresh = false) {
           shipping_address: order.shipping_address || null
         };
       });
-      
       cachedOrders = transformedOrders;
       lastFetchTime = now;
       return transformedOrders;
     } catch (error) {
       console.error('Error loading orders from API:', error);
-      // Fall through to localStorage
     }
   }
-  
-  // Fallback to localStorage
   try {
     const allOrders = [];
     const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    
     registeredUsers.forEach(user => {
       const userOrders = JSON.parse(localStorage.getItem(`orders_${user.email}`) || '[]');
       userOrders.forEach(order => {
@@ -60,32 +47,25 @@ async function getAllOrders(forceRefresh = false) {
         });
       });
     });
-    
     return allOrders.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
   } catch (error) {
     console.error('Error loading orders from localStorage:', error);
     return [];
   }
 }
-
 function formatDate(timestamp) {
   if (!timestamp) return 'N/A';
-  
   let date;
   if (typeof timestamp === 'string' && timestamp.includes('T')) {
-    // ISO date string from API
     date = new Date(timestamp);
   } else if (typeof timestamp === 'number') {
-    // Unix timestamp
     date = new Date(timestamp);
   } else {
     date = new Date(timestamp);
   }
-  
   if (isNaN(date.getTime())) {
     return 'N/A';
   }
-  
   return date.toLocaleDateString('en-US', { 
     year: 'numeric', 
     month: 'short', 
@@ -94,33 +74,23 @@ function formatDate(timestamp) {
     minute: '2-digit'
   });
 }
-
 async function renderOrders(forceRefresh = false) {
   const orders = await getAllOrders(forceRefresh);
   const tbody = document.getElementById('orders-table-body');
-  
   if (!tbody) return;
-  
   if (orders.length === 0) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No orders found</td></tr>';
     return;
   }
-  
   tbody.innerHTML = orders.map((order) => {
     const itemsCount = order.items ? order.items.length : 0;
     const total = parseFloat(order.total) || 0;
-    // Normalize status - ensure it's lowercase and trimmed
     const status = (order.status || 'pending').toLowerCase().trim();
-    // Use order_id as primary identifier for API calls, fallback to order_number or id
     const orderId = order.order_id || order.order_number || order.id || `ORD-${Date.now()}`;
     const orderNumber = order.order_number || orderId;
     const statusDisplay = status.charAt(0).toUpperCase() + status.slice(1);
-    
-    // Escape single quotes in customer name for onclick
     const customerName = (order.customerName || order.customerEmail || 'N/A').replace(/'/g, "\\'");
-    // Use order_id for API calls, but order_number for display
     const safeOrderId = String(order.order_id || orderId).replace(/'/g, "\\'");
-    
     return `
       <tr>
         <td>${orderNumber}</td>
@@ -139,25 +109,18 @@ async function renderOrders(forceRefresh = false) {
     `;
   }).join('');
 }
-
 async function viewOrder(orderId) {
   console.log('Viewing order:', orderId);
-  
   let order = null;
-  
-  // Try to get full order details from API first
   if (typeof window !== 'undefined' && window.apiClient && window.apiClient.isAuthenticated()) {
     try {
-      // Try to find order_id from the orderId string (use fresh data)
-      const orders = await getAllOrders(false); // Don't force refresh for view, but use cache if fresh
+      const orders = await getAllOrders(false); 
       const foundOrder = orders.find(o => 
         o.id === orderId || 
         o.order_number === orderId || 
         String(o.order_id) === String(orderId)
       );
-      
       if (foundOrder && foundOrder.order_id) {
-        // Get full order details from API
         const fullOrder = await window.apiClient.getOrder(foundOrder.order_id);
         order = {
           ...fullOrder,
@@ -171,30 +134,23 @@ async function viewOrder(orderId) {
       }
     } catch (error) {
       console.error('Error loading order from API:', error);
-      // Fall through to use cached order
       const orders = await getAllOrders();
       order = orders.find(o => o.id === orderId || o.order_number === orderId || String(o.order_id) === String(orderId));
     }
   } else {
-    // Fallback to cached orders
     const orders = await getAllOrders();
     order = orders.find(o => o.id === orderId || o.order_number === orderId || String(o.order_id) === String(orderId));
   }
-  
   if (!order) {
     alert('Order not found');
     return;
   }
-  
-  // Build detailed order information
   const customerName = order.customerName || order.customer_name || 'N/A';
   const customerEmail = order.customerEmail || order.customer_email || 'N/A';
   const orderDate = formatDate(order.date || order.created_at);
   const orderTotal = parseFloat(order.total) || 0;
   const orderStatus = (order.status || 'pending').toLowerCase();
   const shippingAddress = order.shipping_address || 'N/A';
-  
-  // Build items list
   const items = order.items || [];
   let itemsList = '';
   if (items.length === 0) {
@@ -210,59 +166,41 @@ async function viewOrder(orderId) {
       return `${index + 1}. ${itemName}${size}${color}\n   Quantity: ${quantity} x $${price.toFixed(2)} = $${subtotal.toFixed(2)}`;
     }).join('\n\n');
   }
-  
-  // Calculate subtotals
   const subtotal = parseFloat(order.subtotal) || 0;
   const shipping = parseFloat(order.shipping) || 0;
   const discount = parseFloat(order.discount) || 0;
-  
-  // Create detailed message
   const message = `ORDER DETAILS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 Order Number: ${order.order_number || order.id || orderId}
 Status: ${orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
 Date: ${orderDate}
-
 CUSTOMER INFORMATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Name: ${customerName}
 Email: ${customerEmail}
 Shipping Address: ${shippingAddress}
-
 ORDER ITEMS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${itemsList}
-
 ORDER SUMMARY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Subtotal: $${subtotal.toFixed(2)}
 Shipping: $${shipping.toFixed(2)}
 ${discount > 0 ? `Discount: -$${discount.toFixed(2)}\n` : ''}Total: $${orderTotal.toFixed(2)}`;
-  
   alert(message);
 }
-
 async function updateOrderStatus(orderId, newStatus) {
   console.log('Updating order status:', orderId, newStatus);
-  
-  // Force refresh to get latest data
   const orders = await getAllOrders(true);
   console.log('All orders:', orders);
-  
-  // Try to find order by different ID formats
   const order = orders.find(o => {
     const oId = String(o.id || '');
     const oOrderNumber = String(o.order_number || '');
     const oOrderId = String(o.order_id || '');
     const searchId = String(orderId);
-    
-    // Try exact matches first
     if (oId === searchId || oOrderNumber === searchId || oOrderId === searchId) {
       return true;
     }
-    
-    // Try numeric comparison if both are numbers
     const searchNum = parseInt(searchId);
     const oIdNum = parseInt(oId);
     const oOrderIdNum = parseInt(oOrderId);
@@ -270,28 +208,18 @@ async function updateOrderStatus(orderId, newStatus) {
       if (!isNaN(oIdNum) && oIdNum === searchNum) return true;
       if (!isNaN(oOrderIdNum) && oOrderIdNum === searchNum) return true;
     }
-    
     return false;
   });
-  
   console.log('Found order:', order);
-  
   if (!order) {
     alert(`Order not found. Searched for: ${orderId}`);
     return;
   }
-  
-  // Try to update via API first
   if (typeof window !== 'undefined' && window.apiClient && window.apiClient.isAuthenticated()) {
     try {
-      // Use order_id if available, otherwise try to extract from order_number or use the passed ID
       let orderIdToUpdate = order.order_id;
-      
-      // If order_id is not available, try to extract it from order_number or use the passed ID
       if (!orderIdToUpdate) {
-        // Try to parse order_id from order_number (e.g., "ORD-1234567890" -> extract number)
         if (order.order_number) {
-          // Try to get order by order_number first
           try {
             const allOrdersFromAPI = await window.apiClient.getOrders();
             const apiOrder = allOrdersFromAPI.find(o => 
@@ -305,41 +233,26 @@ async function updateOrderStatus(orderId, newStatus) {
             console.error('Error finding order in API:', e);
           }
         }
-        
-        // If still not found, try using the passed orderId as order_id
         if (!orderIdToUpdate && !isNaN(parseInt(orderId))) {
           orderIdToUpdate = parseInt(orderId);
         }
       }
-      
       if (!orderIdToUpdate) {
         throw new Error('Could not determine order_id for API update');
       }
-      
-      // Normalize status to lowercase
       const normalizedStatus = newStatus.toLowerCase();
-      
-      // Validate status
       const validStatuses = ['pending', 'processing', 'completed', 'cancelled'];
       if (!validStatuses.includes(normalizedStatus)) {
         throw new Error(`Invalid status: ${normalizedStatus}. Must be one of: ${validStatuses.join(', ')}`);
       }
-      
       console.log('Updating order via API with order_id:', orderIdToUpdate, 'status:', normalizedStatus);
       const updatedOrder = await window.apiClient.updateOrderStatus(orderIdToUpdate, normalizedStatus);
       console.log('Order updated successfully:', updatedOrder);
-      
-      // Clear cache immediately to force refresh
       cachedOrders = [];
       lastFetchTime = 0;
-      
-      // Wait a bit for the database to update
       await new Promise(resolve => setTimeout(resolve, 200));
-      
-      // Force reload orders from API (bypass cache)
       const freshOrders = await window.apiClient.getOrders();
       console.log('Fresh orders from API:', freshOrders);
-      
       const transformedOrders = freshOrders.map(order => {
         const normalizedStatus = (order.status || 'pending').toLowerCase().trim();
         console.log(`Order ${order.order_number || order.order_id}: API status="${order.status}", normalized="${normalizedStatus}"`);
@@ -359,17 +272,12 @@ async function updateOrderStatus(orderId, newStatus) {
           shipping_address: order.shipping_address || null
         };
       });
-      
-      // Update cache with fresh data
       cachedOrders = transformedOrders;
       lastFetchTime = Date.now();
-      
       console.log('Cache updated. Transformed orders:', transformedOrders.map(o => ({
         order_number: o.order_number,
         status: o.status
       })));
-      
-      // Re-render orders table directly with transformed data (don't call getAllOrders again)
       const tbody = document.getElementById('orders-table-body');
       if (tbody) {
         if (transformedOrders.length === 0) {
@@ -379,16 +287,12 @@ async function updateOrderStatus(orderId, newStatus) {
             const itemsCount = order.items ? order.items.length : 0;
             const total = parseFloat(order.total) || 0;
             const status = (order.status || 'pending').toLowerCase().trim();
-            // Use order_id as primary identifier for API calls
             const orderId = order.order_id || order.order_number || order.id || `ORD-${Date.now()}`;
             const orderNumber = order.order_number || orderId;
             const statusDisplay = status.charAt(0).toUpperCase() + status.slice(1);
             const customerName = (order.customerName || order.customerEmail || 'N/A').replace(/'/g, "\\'");
-            // Use order_id for API calls, but order_number for display
             const safeOrderId = String(order.order_id || orderId).replace(/'/g, "\\'");
-            
             console.log(`Rendering order ${orderNumber} (ID: ${order.order_id}): status="${status}"`);
-            
             return `
               <tr>
                 <td>${orderNumber}</td>
@@ -408,23 +312,17 @@ async function updateOrderStatus(orderId, newStatus) {
           }).join('');
         }
       }
-      
-      // Show success message
       alert(`Order status updated to "${normalizedStatus}" successfully!`);
       return;
     } catch (error) {
       console.error('Error updating order status via API:', error);
       alert(`Error updating order status: ${error.message || 'Unknown error'}`);
-      // Fall through to localStorage update
     }
   }
-  
-  // Fallback to localStorage update
   if (order && order.customerEmail) {
     const userOrders = JSON.parse(localStorage.getItem(`orders_${order.customerEmail}`) || '[]');
     const updatedOrders = userOrders.map(o => {
       if (o.id === orderId || o.order_number === orderId || String(o.id) === String(orderId)) {
-        // Normalize status to lowercase for consistency
         const normalizedStatus = newStatus.toLowerCase();
         return { ...o, status: normalizedStatus };
       }
@@ -437,11 +335,8 @@ async function updateOrderStatus(orderId, newStatus) {
     alert('Could not update order: customer email not found');
   }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   renderOrders();
-  
-  // Add refresh button functionality if it exists
   const refreshBtn = document.getElementById('refresh-orders-btn');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', async () => {
@@ -450,12 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
       await renderOrders();
     });
   }
-  
-  // Auto-refresh every 10 seconds
   setInterval(async () => {
     cachedOrders = [];
     lastFetchTime = 0;
     await renderOrders();
   }, 10000);
 });
-

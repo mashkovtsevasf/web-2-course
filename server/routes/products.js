@@ -44,6 +44,8 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
+    
+    // Try to find by product_id OR product_code
     const product = await db.get(
       `SELECT 
         p.*,
@@ -51,8 +53,8 @@ router.get('/:id', async (req, res, next) => {
         c.category_slug
       FROM Products p
       INNER JOIN Categories c ON p.category_id = c.category_id
-      WHERE p.product_id = ? AND p.is_active = 1`,
-      [id]
+      WHERE (p.product_id = ? OR p.product_code = ?) AND p.is_active = 1`,
+      [id, id]
     );
     
     if (!product) {

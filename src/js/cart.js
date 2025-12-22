@@ -1,23 +1,13 @@
-// Cart page functionality
-
 let cartItems = [];
-
-// Get base path function
 function getBasePath() {
   const path = window.location.pathname;
   const isSubPage = path.includes('/html/');
-  
-  // Detect if we're on GitHub Pages (path contains repository name)
   const isGitHubPages = path.includes('/web-2-course/');
   const repoBase = isGitHubPages ? '/web-2-course' : '';
-  
   const srcPath = `${repoBase}/src`;
   const slash = '/';
-  
   return `${srcPath}${slash}`;
 }
-
-// Cart storage functions (from main.js)
 function getCartFromStorage() {
   try {
     const cart = localStorage.getItem('cart');
@@ -26,7 +16,6 @@ function getCartFromStorage() {
     return [];
   }
 }
-
 function saveCartToStorage(cart) {
   try {
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -37,12 +26,10 @@ function saveCartToStorage(cart) {
     console.error('Error saving cart:', error);
   }
 }
-
 function updateCartCounter() {
   const cart = getCartFromStorage();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartCountEl = document.getElementById('cart-count');
-  
   if (cartCountEl) {
     if (totalItems > 0) {
       cartCountEl.textContent = totalItems;
@@ -52,8 +39,6 @@ function updateCartCounter() {
     }
   }
 }
-
-// Order history functions
 function getOrderHistory() {
   try {
     const userEmail = localStorage.getItem('userEmail');
@@ -64,7 +49,6 @@ function getOrderHistory() {
     return [];
   }
 }
-
 function saveOrderHistory(orders) {
   try {
     const userEmail = localStorage.getItem('userEmail');
@@ -75,12 +59,9 @@ function saveOrderHistory(orders) {
     console.error('Error saving order history:', error);
   }
 }
-
-// Rendering
 function renderCartItems() {
   const cartItemsContainer = document.getElementById('cart-items');
   if (!cartItemsContainer) return;
-  
   if (cartItems.length === 0) {
     cartItemsContainer.innerHTML = `
       <div class="cart__empty">
@@ -91,16 +72,13 @@ function renderCartItems() {
     updateCartCounter();
     return;
   }
-  
   const basePath = getBasePath();
-  
   cartItemsContainer.innerHTML = cartItems.map(item => {
     const total = item.price * item.quantity;
     let imagePath = item.image;
     if (imagePath?.startsWith('assets/') && !imagePath?.startsWith(basePath)) {
       imagePath = `${basePath}${imagePath}`;
     }
-    
     return `
       <div class="cart__item" data-item-id="${item.id}">
         <div class="cart__item-cell cart__item-cell--image">
@@ -130,29 +108,23 @@ function renderCartItems() {
       </div>
     `;
   }).join('');
-  
   updateCartSummary();
   setupEventListeners();
 }
-
 function updateCartSummary() {
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = cartItems.length > 0 ? 30 : 0;
-  
   const discountThreshold = 3000;
   const discount = subtotal > discountThreshold ? subtotal * 0.1 : 0;
   const total = subtotal - discount + shipping;
-  
   const subtotalEl = document.getElementById('cart-subtotal');
   const totalEl = document.getElementById('cart-total');
   const shippingEl = document.getElementById('cart-shipping');
   const discountEl = document.getElementById('cart-discount');
   const discountRow = document.getElementById('cart-discount-row');
-  
   if (subtotalEl) subtotalEl.textContent = `$${subtotal}`;
   if (shippingEl) shippingEl.textContent = `$${shipping}`;
   if (totalEl) totalEl.textContent = `$${total}`;
-  
   if (discountRow) {
     if (discount > 0) {
       discountRow.style.display = 'flex';
@@ -161,7 +133,6 @@ function updateCartSummary() {
       discountRow.style.display = 'none';
     }
   }
-  
   document.querySelectorAll('.cart__item[data-item-id]').forEach(itemEl => {
     const itemId = itemEl.getAttribute('data-item-id');
     const item = cartItems.find(i => i.id === itemId);
@@ -172,11 +143,9 @@ function updateCartSummary() {
       }
     }
   });
-  
   updateCartCounter();
   saveCartToStorage(cartItems);
 }
-
 function setupEventListeners() {
   document.querySelectorAll('.cart__quantity-decrease').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -188,7 +157,6 @@ function setupEventListeners() {
       }
     });
   });
-  
   document.querySelectorAll('.cart__quantity-increase').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const itemId = e.target.getAttribute('data-item-id');
@@ -199,7 +167,6 @@ function setupEventListeners() {
       }
     });
   });
-  
   document.querySelectorAll('.cart__quantity-input').forEach(input => {
     input.addEventListener('change', (e) => {
       const itemId = e.target.getAttribute('data-item-id');
@@ -211,7 +178,6 @@ function setupEventListeners() {
       }
     });
   });
-  
   document.querySelectorAll('.cart__delete-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const itemId = e.target.closest('.cart__delete-btn').getAttribute('data-item-id');
@@ -223,7 +189,6 @@ function setupEventListeners() {
       }
     });
   });
-  
   const clearBtn = document.querySelector('.cart__clear-btn');
   if (clearBtn && !clearBtn.dataset.listenerAdded) {
     clearBtn.dataset.listenerAdded = 'true';
@@ -236,7 +201,6 @@ function setupEventListeners() {
       }
     });
   }
-  
   const continueBtn = document.querySelector('.cart__continue-btn');
   if (continueBtn && !continueBtn.dataset.listenerAdded) {
     continueBtn.dataset.listenerAdded = 'true';
@@ -244,7 +208,6 @@ function setupEventListeners() {
       window.location.href = `${getBasePath()}html/catalog.html`;
     });
   }
-  
   const checkoutBtn = document.querySelector('.cart__checkout-btn');
   if (checkoutBtn && !checkoutBtn.dataset.listenerAdded) {
     checkoutBtn.dataset.listenerAdded = 'true';
@@ -253,33 +216,24 @@ function setupEventListeners() {
         alert('Your cart is empty');
         return;
       }
-      
-      // Check if user is authenticated
       const isAuth = typeof window !== 'undefined' && window.apiClient && window.apiClient.isAuthenticated();
       const isLoggedInOld = localStorage.getItem('isLoggedIn') === 'true';
-      
       if (!isAuth && !isLoggedInOld) {
         alert('Please log in to place an order');
-        // Open login modal if available
         const loginModal = document.getElementById('login-modal');
         if (loginModal) {
           loginModal.style.display = 'flex';
         } else {
-          // Redirect to home page where login modal should be available
           window.location.href = `${getBasePath()}index.html`;
         }
         return;
       }
-      
-      // Calculate order total
       const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const shipping = 30;
       const discountThreshold = 3000;
       const discount = subtotal > discountThreshold ? subtotal * 0.1 : 0;
       const total = subtotal - discount + shipping;
-      
       try {
-        // Try to create order via API if authenticated
         if (isAuth && typeof window !== 'undefined' && window.apiClient) {
           const orderData = {
             items: cartItems.map(item => ({
@@ -297,10 +251,7 @@ function setupEventListeners() {
             total: total,
             shipping_address: null
           };
-          
           const order = await window.apiClient.createOrder(orderData);
-          
-          // Save order to user's order history (localStorage backup)
           const userEmail = localStorage.getItem('userEmail');
           if (userEmail) {
             const orders = getOrderHistory();
@@ -324,15 +275,12 @@ function setupEventListeners() {
             orders.unshift(localOrder);
             saveOrderHistory(orders);
           }
-          
-          // Clear cart
           cartItems.length = 0;
           saveCartToStorage(cartItems);
           updateCartCounter();
           alert('Thank you for your purchase. Your order has been placed!');
           renderCartItems();
         } else {
-          // Fallback to localStorage if API is not available
           const order = {
             id: `ORD-${Date.now()}`,
             date: Date.now(),
@@ -350,16 +298,12 @@ function setupEventListeners() {
             total: total,
             status: 'pending'
           };
-          
-          // Save order to user's order history
           const userEmail = localStorage.getItem('userEmail');
           if (userEmail) {
             const orders = getOrderHistory();
             orders.unshift(order);
             saveOrderHistory(orders);
           }
-          
-          // Clear cart
           cartItems.length = 0;
           saveCartToStorage(cartItems);
           updateCartCounter();
@@ -373,8 +317,6 @@ function setupEventListeners() {
     });
   }
 }
-
-// Data loading
 async function loadCartItemsFromStorage() {
   try {
     cartItems = getCartFromStorage();
@@ -384,10 +326,8 @@ async function loadCartItemsFromStorage() {
     return cartItems;
   }
 }
-
 document.addEventListener('DOMContentLoaded', async () => {
   await loadCartItemsFromStorage();
   renderCartItems();
   updateCartCounter();
 });
-
